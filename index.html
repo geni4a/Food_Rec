@@ -1,0 +1,2261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Recipe Bank">
+<meta name="theme-color" content="#1b1d1f">
+<title>Recipe Bank</title>
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%231b1d1f'/%3E%3Cpath d='M16 46h68a34 30 0 0 1-68 0z' fill='%23e8894f'/%3E%3Crect x='12' y='42' width='76' height='7' rx='3' fill='%23ede9e3'/%3E%3Cpath d='M40 34c-4-5 4-8 0-14M52 34c-4-5 4-8 0-14M64 34c-4-5 4-8 0-14' stroke='%2379b473' stroke-width='4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%231b1d1f'/%3E%3Cpath d='M16 46h68a34 30 0 0 1-68 0z' fill='%23e8894f'/%3E%3C/svg%3E">
+<style>
+  :root{
+    --bg:#1b1d1f;
+    --bg-elev:#232628;
+    --bg-elev-2:#2b2f32;
+    --ink:#ede9e3;
+    --ink-dim:#a9a49c;
+    --line:#3a3e41;
+    --accent:#e8894f;
+    --accent-ink:#1b1d1f;
+    --teal:#79b473;
+    --danger:#d9614f;
+    --radius:14px;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+    padding-bottom:calc(72px + var(--safe-bottom));
+  }
+  h1,h2,h3{
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",system-ui,sans-serif;
+    font-weight:800;letter-spacing:-0.02em;margin:0 0 14px;
+  }
+  h1{font-size:22px;letter-spacing:0.01em;text-transform:uppercase;}
+  h1.title{text-transform:none;font-size:24px;letter-spacing:-0.01em;margin-bottom:6px;}
+  h2{font-size:13px;color:var(--accent);text-transform:uppercase;letter-spacing:0.08em;margin:22px 0 10px;}
+  h1 .count{font-size:13px;color:var(--ink-dim);font-weight:700;margin-left:6px;}
+  a{color:var(--teal);text-decoration:none;}
+  .mono{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-variant-numeric:tabular-nums;}
+  /* Top bar */
+  .topbar{position:sticky;top:0;z-index:20;background:rgba(27,29,31,0.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding-top:var(--safe-top);}
+  .topbar-inner{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;}
+  .brand{font-weight:800;letter-spacing:0.12em;font-size:15px;}
+  .brand::before{content:"◒ ";color:var(--accent);}
+  .icon-btn{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--bg-elev-2);color:var(--ink-dim);border:1px solid var(--line);font-size:14px;font-family:inherit;padding:0;cursor:pointer;-webkit-appearance:none;flex-shrink:0;}
+  main{padding:16px;max-width:680px;margin:0 auto;}
+  .page{animation:fade .15s ease-out;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+  .empty{color:var(--ink-dim);padding:24px 0;line-height:1.5;}
+  .empty a{color:var(--accent);}
+  .meta{display:block;font-size:12.5px;color:var(--ink-dim);margin-top:3px;line-height:1.45;}
+  .card{background:var(--bg-elev);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:12px;}
+  ul.plain{list-style:none;margin:0;padding:0;}
+  /* Buttons */
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;background:var(--accent);color:var(--accent-ink);border:none;border-radius:10px;padding:10px 14px;font-size:13.5px;font-weight:700;cursor:pointer;text-align:center;font-family:inherit;}
+  .btn.small{padding:7px 10px;font-size:12px;border-radius:8px;}
+  .btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line);}
+  .btn.teal{background:var(--teal);color:#0f1d0d;}
+  .btn.danger{background:transparent;color:var(--danger);border:1px solid rgba(217,97,79,0.5);}
+  .btn.block{width:100%;padding:13px;font-size:14px;}
+  .btn:active{transform:scale(0.97);}
+  .btn:disabled{opacity:.45;}
+  /* Forms */
+  .field{margin-bottom:14px;}
+  .field > label, .lbl{display:block;font-size:11.5px;color:var(--ink-dim);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;}
+  .hint{font-size:11.5px;color:var(--ink-dim);margin-top:5px;line-height:1.45;}
+  input[type=text], input[type=number], input[type=date], input[type=search], textarea, select{
+    width:100%;background:var(--bg-elev-2);border:1px solid var(--line);color:var(--ink);
+    border-radius:10px;padding:11px 12px;font-size:15px;font-family:inherit;
+  }
+  textarea{min-height:90px;resize:vertical;line-height:1.45;}
+  input:focus, textarea:focus, select:focus{outline:2px solid var(--accent);outline-offset:1px;}
+  input.bad{outline:2px solid var(--danger);}
+  .form-actions{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+  .chk{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--ink);text-transform:none;letter-spacing:0;}
+  .chk input{width:17px;height:17px;accent-color:var(--accent);flex-shrink:0;}
+  /* Chips */
+  .chips{display:flex;flex-wrap:wrap;gap:6px;}
+  .chip{font-size:12.5px;padding:6px 11px;border-radius:20px;background:var(--bg-elev-2);border:1px solid var(--line);color:var(--ink);cursor:pointer;font-weight:600;font-family:inherit;}
+  .chip.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);}
+  .tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;}
+  .tag{font-size:10.5px;padding:3px 8px;border-radius:20px;background:var(--bg-elev-2);color:var(--ink-dim);border:1px solid var(--line);white-space:nowrap;}
+  .tag.accent{color:var(--accent);border-color:rgba(232,137,79,0.45);}
+  .tag.green{color:var(--teal);border-color:rgba(121,180,115,0.45);}
+  /* Recipe list */
+  .r-item{display:block;background:var(--bg-elev);border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px;margin-bottom:8px;color:var(--ink);}
+  .r-item strong{font-size:15px;}
+  .r-item:active{opacity:.75;}
+  /* Recipe view */
+  .scale-row{display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap;}
+  .stepper{display:flex;align-items:center;gap:8px;}
+  .stepper .num{min-width:34px;text-align:center;font-weight:800;}
+  .pill{display:inline-block;font-size:12px;font-weight:700;background:rgba(232,137,79,0.14);color:var(--accent);border:1px solid rgba(232,137,79,0.45);border-radius:20px;padding:4px 12px;margin:4px 0 0;}
+  .ing-list li{padding:9px 0;border-top:1px solid var(--line);line-height:1.4;font-size:15px;}
+  .ing-list li:first-child{border-top:none;}
+  .amt{color:var(--accent);font-weight:800;}
+  .note{color:var(--ink-dim);}
+  .warn{font-size:12px;color:#e7b45a;margin-top:3px;}
+  .sec-name{font-size:11.5px;color:var(--ink-dim);text-transform:uppercase;letter-spacing:.06em;margin:14px 0 2px;}
+  ol.steps{margin:0;padding-left:22px;}
+  ol.steps li{padding:8px 0 8px 4px;line-height:1.55;font-size:15px;}
+  ol.steps .amt{background:rgba(232,137,79,0.12);border-radius:5px;padding:0 4px;}
+  details.more{margin-top:12px;}
+  details.more > summary{cursor:pointer;font-size:13px;color:var(--teal);font-weight:700;list-style:none;}
+  details.more > summary::-webkit-details-marker{display:none;}
+  details.more > summary::before{content:"▸ ";}
+  details.more[open] > summary::before{content:"▾ ";}
+  .kv{display:flex;justify-content:space-between;gap:10px;font-size:13px;padding:8px 0;border-top:1px solid var(--line);}
+  .kv:first-child{border-top:none;}
+  /* Line editor */
+  .line-card{background:var(--bg-elev);border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:8px;}
+  .line-top{display:grid;grid-template-columns:auto 62px 78px 1fr auto;gap:6px;align-items:center;}
+  .line-top input, .line-top select, .line-grid input, .line-grid select{padding:8px 8px;font-size:14px;border-radius:8px;}
+  .line-idx{font-size:11px;color:var(--ink-dim);font-weight:700;min-width:22px;}
+  .line-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 8px;margin-top:8px;}
+  .line-grid .full{grid-column:1/-1;}
+  .line-grid label{display:block;font-size:10px;color:var(--ink-dim);text-transform:uppercase;letter-spacing:.05em;}
+  .line-grid label > input, .line-grid label > select{margin-top:3px;}
+  .status{font-size:12px;margin-top:6px;}
+  .status.ok{color:var(--teal);} .status.new{color:var(--accent);} .status.bad{color:var(--danger);}
+  /* Search */
+  .add-row{display:flex;gap:8px;}
+  .add-row input{flex:1;}
+  .have{display:inline-flex;align-items:center;gap:4px;background:var(--bg-elev-2);border:1px solid var(--line);border-radius:20px;padding:3px 4px 3px 11px;font-size:13px;font-weight:600;}
+  .have select{width:auto;padding:3px 6px;font-size:12px;border-radius:12px;background:var(--bg);}
+  .have button{background:none;border:none;color:var(--ink-dim);font-size:14px;cursor:pointer;padding:2px 6px;}
+  .res{display:flex;gap:12px;align-items:flex-start;background:var(--bg-elev);border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px;margin-bottom:8px;}
+  .plate{width:50px;height:50px;flex-shrink:0;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;border:3px solid #14181a;font-family:ui-monospace,"SF Mono",Menlo,monospace;}
+  .plate.hi{background:radial-gradient(circle at 33% 28%,#a6d69f 0%,#79b473 55%,#456b40 100%);color:#10200e;}
+  .plate.mid{background:radial-gradient(circle at 33% 28%,#f5b183 0%,#e8894f 55%,#8f4f27 100%);color:#1b1d1f;}
+  .plate.lo{background:var(--bg-elev-2);color:var(--ink-dim);border-color:var(--line);}
+  .res-body{flex:1;min-width:0;}
+  .res-body strong{font-size:15px;}
+  .miss{color:#e98b7c;} .sub{color:var(--teal);}
+  /* Ingredients tree */
+  .tree, .tree ul{list-style:none;margin:0;padding:0;}
+  .tree ul{margin-left:14px;padding-left:10px;border-left:1px dashed var(--line);}
+  .node{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 2px;border-top:1px solid rgba(58,62,65,.6);}
+  .node a{color:var(--ink);font-weight:600;font-size:14.5px;}
+  .node .tags{margin-top:0;flex-shrink:0;}
+  /* Tabbar */
+  .tabbar{position:fixed;bottom:0;left:0;right:0;z-index:30;display:flex;background:rgba(27,29,31,0.96);backdrop-filter:blur(10px);border-top:1px solid var(--line);padding-bottom:var(--safe-bottom);}
+  .tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 2px 8px;color:var(--ink-dim);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.03em;}
+  .tab.active{color:var(--accent);}
+  .tab-icon{font-size:18px;line-height:1;}
+  /* Toast + modal */
+  #toast{position:fixed;left:50%;bottom:calc(84px + var(--safe-bottom));transform:translateX(-50%) translateY(10px);background:var(--bg-elev-2);color:var(--ink);border:1px solid var(--line);padding:10px 16px;border-radius:20px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s, transform .2s;z-index:200;max-width:90vw;text-align:center;}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .modal-overlay{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.55);display:flex;align-items:center;justify-content:center;padding:20px;}
+  .modal-box{background:var(--bg-elev);border:1px solid var(--line);border-radius:var(--radius);padding:20px;max-width:400px;width:100%;max-height:88vh;overflow-y:auto;box-shadow:0 12px 40px rgba(0,0,0,0.5);}
+  .modal-box p{margin:0 0 18px;font-size:14.5px;line-height:1.5;}
+  .modal-actions{display:flex;gap:8px;margin-top:6px;}
+  .modal-actions .btn{flex:1;}
+  .stars{display:flex;gap:4px;}
+  .stars button{background:none;border:none;font-size:26px;color:var(--line);cursor:pointer;padding:0 2px;}
+  .stars button.on{color:var(--accent);}
+  .menu{display:none;position:absolute;top:calc(100% + 4px);right:0;z-index:25;background:var(--bg-elev-2);border:1px solid var(--line);border-radius:10px;min-width:190px;padding:6px;box-shadow:0 8px 24px rgba(0,0,0,0.4);}
+  .menu.open{display:block;}
+  .menu a{display:block;padding:9px 10px;color:var(--ink);font-size:14px;border-radius:7px;}
+  .menu a:active{background:var(--bg-elev);}
+  hr.rule{border:none;border-top:1px solid var(--line);margin:20px 0;}
+</style>
+<link rel="manifest" href="manifest.json">
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-inner">
+      <span class="brand">RECIPE BANK</span>
+      <div style="position:relative">
+        <button type="button" class="icon-btn" id="menuToggle" title="Menu">☰</button>
+        <div id="topMenu" class="menu">
+          <a href="#/history">▤ Cook history</a>
+          <a href="#/backup">⇩ Backup &amp; restore</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <main id="app"></main>
+
+  <nav class="tabbar">
+    <a href="#/" class="tab" data-route=""><span class="tab-icon">⌂</span><span>Recipes</span></a>
+    <a href="#/r/new" class="tab" data-route="r/new"><span class="tab-icon">+</span><span>Add</span></a>
+    <a href="#/search" class="tab" data-route="search"><span class="tab-icon">⌕</span><span>Search</span></a>
+    <a href="#/ingredients" class="tab" data-route="ingredients"><span class="tab-icon">❦</span><span>Ingredients</span></a>
+    <a href="#/history" class="tab" data-route="history"><span class="tab-icon">▤</span><span>History</span></a>
+  </nav>
+
+  <div id="toast"></div>
+
+<script>
+/* =========================================================
+   Recipe Bank — offline single-file recipe app
+   (same framework as Iron Log: IndexedDB + hash router)
+   ========================================================= */
+
+/* LOGIC START — pure functions only (no DOM, no DB). */
+
+/* ---------- numbers & fractions ---------- */
+const UF = '½⅓⅔¼¾⅛⅜⅝⅞⅕⅖⅗⅘⅙⅚';
+const UNICODE_FRACS = {'½':1/2,'⅓':1/3,'⅔':2/3,'¼':1/4,'¾':3/4,'⅛':1/8,'⅜':3/8,'⅝':5/8,'⅞':7/8,'⅕':1/5,'⅖':2/5,'⅗':3/5,'⅘':4/5,'⅙':1/6,'⅚':5/6};
+const FRAC_CHARS = {'1/2':'½','1/3':'⅓','2/3':'⅔','1/4':'¼','3/4':'¾','1/8':'⅛','3/8':'⅜','5/8':'⅝','7/8':'⅞'};
+const NUM = `(?:\\d+\\s+\\d+\\/\\d+|\\d+\\/\\d+|\\d+(?:\\.\\d+)?\\s?[${UF}]|\\d*\\.\\d+|\\d+|[${UF}])`;
+const QTY_RE = new RegExp(`^(${NUM})(?:\\s*(?:-|–|to)\\s*(${NUM}))?`, 'i');
+
+function parseNumber(s){
+  if(s == null) return null;
+  s = String(s).trim();
+  let m;
+  if((m = s.match(/^(\d+)\s+(\d+)\/(\d+)$/))) return +m[3] ? +m[1] + m[2]/m[3] : null;
+  if((m = s.match(/^(\d+)\/(\d+)$/))) return +m[2] ? m[1]/m[2] : null;
+  if((m = s.match(new RegExp(`^(\\d+(?:\\.\\d+)?)\\s?([${UF}])$`)))) return +m[1] + UNICODE_FRACS[m[2]];
+  if(UNICODE_FRACS[s] != null) return UNICODE_FRACS[s];
+  if(!/^\d*\.?\d+$/.test(s)) return null;
+  const n = parseFloat(s);
+  return isFinite(n) ? n : null;
+}
+/* "1 1/2", "2-3", "½" → {qty, qtyMax}; '' → {qty:null}; garbage → null */
+function parseQtyString(str){
+  str = String(str||'').trim();
+  if(!str) return {qty:null, qtyMax:null};
+  const m = str.match(QTY_RE);
+  if(!m || m[0].length !== str.length) return null;
+  const qty = parseNumber(m[1]);
+  const qtyMax = m[2] ? parseNumber(m[2]) : null;
+  if(qty == null || (m[2] && qtyMax == null)) return null;
+  return {qty, qtyMax};
+}
+function gcd(a,b){ return b ? gcd(b, a % b) : a; }
+function numStr(v){ return String(Math.round(v*100)/100); }
+/* Nearest "kitchen" fraction. Earlier denominators win ties, so ½ beats 4/8. */
+function fracStr(x, denoms){
+  denoms = denoms || [2,3,4,8];
+  let best = null;
+  for(const d of denoms){
+    const n = Math.round(x*d);
+    const err = Math.abs(n/d - x);
+    if(!best || err < best.err - 1e-12) best = {n, d, err};
+  }
+  const whole = Math.floor(best.n/best.d), rem = best.n - whole*best.d;
+  let str;
+  if(rem === 0) str = String(whole);
+  else{
+    const g = gcd(rem, best.d);
+    const k = `${rem/g}/${best.d/g}`;
+    const ch = FRAC_CHARS[k] || k;
+    str = whole ? `${whole}${ch}` : ch;
+  }
+  return {str, val: best.n/best.d, err: best.err};
+}
+
+/* ---------- units ---------- */
+const UNITS = {
+  tsp:    {dim:'vol', sys:'us', f:4.92892, one:'tsp', many:'tsp'},
+  tbsp:   {dim:'vol', sys:'us', f:14.7868, one:'tbsp', many:'tbsp'},
+  floz:   {dim:'vol', sys:'us', f:29.5735, one:'fl oz', many:'fl oz'},
+  cup:    {dim:'vol', sys:'us', f:236.588, one:'cup', many:'cups'},
+  pint:   {dim:'vol', sys:'us', f:473.176, one:'pint', many:'pints'},
+  quart:  {dim:'vol', sys:'us', f:946.353, one:'quart', many:'quarts'},
+  ml:     {dim:'vol', sys:'metric', f:1, one:'ml', many:'ml'},
+  l:      {dim:'vol', sys:'metric', f:1000, one:'l', many:'l'},
+  g:      {dim:'wt', sys:'metric', f:1, one:'g', many:'g'},
+  kg:     {dim:'wt', sys:'metric', f:1000, one:'kg', many:'kg'},
+  oz:     {dim:'wt', sys:'us', f:28.3495, one:'oz', many:'oz'},
+  lb:     {dim:'wt', sys:'us', f:453.592, one:'lb', many:'lb'},
+  clove:  {dim:'count', one:'clove', many:'cloves'},
+  can:    {dim:'count', one:'can', many:'cans'},
+  jar:    {dim:'count', one:'jar', many:'jars'},
+  slice:  {dim:'count', one:'slice', many:'slices'},
+  sprig:  {dim:'count', one:'sprig', many:'sprigs'},
+  bunch:  {dim:'count', one:'bunch', many:'bunches'},
+  pinch:  {dim:'count', one:'pinch', many:'pinches'},
+  dash:   {dim:'count', one:'dash', many:'dashes'},
+  handful:{dim:'count', one:'handful', many:'handfuls'},
+  stick:  {dim:'count', one:'stick', many:'sticks'},
+  stalk:  {dim:'count', one:'stalk', many:'stalks'},
+  head:   {dim:'count', one:'head', many:'heads'},
+  piece:  {dim:'count', one:'piece', many:'pieces'},
+  package:{dim:'count', one:'package', many:'packages'},
+};
+const UNIT_KEYS = Object.keys(UNITS);
+const UNIT_ALIASES = {
+  tsp:['tsp','tsps','teaspoon','teaspoons'],
+  tbsp:['tbsp','tbsps','tbs','tbl','tablespoon','tablespoons'],
+  cup:['cup','cups','c'],
+  floz:['floz'],
+  pint:['pint','pints','pt'],
+  quart:['quart','quarts','qt'],
+  ml:['ml','milliliter','milliliters','millilitre','millilitres'],
+  l:['l','liter','liters','litre','litres'],
+  g:['g','gram','grams','gr'],
+  kg:['kg','kilogram','kilograms','kilo','kilos'],
+  oz:['oz','ounce','ounces'],
+  lb:['lb','lbs','pound','pounds'],
+  clove:['clove','cloves'], can:['can','cans','tin','tins'], jar:['jar','jars'],
+  slice:['slice','slices'], sprig:['sprig','sprigs'], bunch:['bunch','bunches'],
+  pinch:['pinch','pinches'], dash:['dash','dashes'], handful:['handful','handfuls'],
+  stick:['stick','sticks'], stalk:['stalk','stalks'], head:['head','heads'],
+  piece:['piece','pieces','pc','pcs'], package:['package','packages','packet','packets','pack','packs'],
+};
+const UNIT_LOOKUP = {};
+for(const k in UNIT_ALIASES) for(const a of UNIT_ALIASES[k]) UNIT_LOOKUP[a] = k;
+function unitFromWord(w){
+  if(!w) return null;
+  w = w.replace(/\.$/, '');
+  if(w === 'T') return 'tbsp';
+  if(w === 't') return 'tsp';
+  return UNIT_LOOKUP[w.toLowerCase()] || null;
+}
+
+/* ---------- names ---------- */
+const SING_EXC = {leaves:'leaf', halves:'half', loaves:'loaf', knives:'knife', molasses:'molasses', hummus:'hummus',
+  couscous:'couscous', asparagus:'asparagus', swiss:'swiss', series:'series', chilies:'chili', chillies:'chilli',
+  anchovies:'anchovy', cheeses:'cheese', pies:'pie'};
+function singularize(w){
+  if(SING_EXC[w]) return SING_EXC[w];
+  if(w.length <= 3) return w;
+  if(/ies$/.test(w)) return w.slice(0,-3) + 'y';
+  if(/oes$/.test(w)) return w.slice(0,-2);
+  if(/(ch|sh|x|zz|ss)es$/.test(w)) return w.slice(0,-2);
+  if(/(ss|us|is)$/.test(w)) return w;
+  if(/s$/.test(w)) return w.slice(0,-1);
+  return w;
+}
+function pluralizeWord(w){
+  if(/[^aeiou]y$/i.test(w)) return w.slice(0,-1) + 'ies';
+  if(/(s|x|z|ch|sh)$/i.test(w)) return w + 'es';
+  if(/^(tomato|potato|mango)$/i.test(w)) return w + 'es';
+  return w + 's';
+}
+function normText(s){
+  return String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'')
+    .replace(/&/g,' and ').replace(/['’]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
+}
+function normName(s){ return normText(s).split(' ').filter(Boolean).map(singularize).join(' '); }
+function slugify(s){ return normName(s).replace(/ /g,'-'); }
+
+const SIZE_SET = new Set(['small','medium','large','big','extra','jumbo','heaping','heaped','level','generous','thick','thin','mini','baby']);
+const PREP_SET = new Set(['chopped','diced','minced','sliced','grated','shredded','crushed','finely','roughly','thinly','coarsely',
+  'freshly','lightly','peeled','beaten','melted','softened','cubed','halved','quartered','rinsed','drained','boneless','skinless',
+  'ripe','packed','sifted','toasted','cooked','uncooked','raw','seeded','deseeded','trimmed','torn','crumbled','cold','warm',
+  'room','temperature','unsalted','salted','organic','chilled','leftover','day','old','and','or','of','the','a','into','cut',
+  'about','approx','good','quality','some','few']);
+const FORMS = ['fresh','frozen','canned','dried','ground','whole','seed','powder','paste','puree','sun-dried','flakes','juice','zest','yolk','white'];
+const PART_FORMS = new Set(['juice','zest','yolk','white']);
+const FORM_WORDS = {fresh:'fresh', frozen:'frozen', canned:'canned', tinned:'canned', dried:'dried', dry:'dried',
+  ground:'ground', whole:'whole', powder:'powder', powdered:'powder', paste:'paste', puree:'puree', pureed:'puree',
+  juice:'juice', juiced:'juice', zest:'zest', zested:'zest', yolk:'yolk', seed:'seed', flake:'flakes'};
+/* Default form-to-form substitution scores (symmetric; key = sorted pair). */
+const DEFAULT_FORM_SCORES = {
+  'fresh|frozen':0.9, 'canned|fresh':0.7, 'dried|fresh':0.7, 'canned|frozen':0.7,
+  'ground|whole':0.8, 'ground|seed':0.8, 'seed|whole':1.0, 'fresh|powder':0.5, 'dried|powder':0.7, 'ground|powder':0.9,
+  'fresh|paste':0.2, 'canned|paste':0.3, 'paste|whole':0.2, 'paste|puree':0.6, 'canned|puree':0.6, 'fresh|puree':0.4,
+  'dried|sun-dried':0.8, 'fresh|sun-dried':0.3, 'canned|sun-dried':0.3, 'dried|flakes':0.9, 'flakes|powder':0.7,
+  'fresh|whole':1.0, 'frozen|whole':0.9,
+};
+const LEAVENING = new Set(['baking-powder','baking-soda','yeast']);
+
+/* Words of a written name split into: the core (no prep/size words), the form words found, and the rest. */
+function splitName(raw){
+  const words = normName(raw).split(' ').filter(Boolean);
+  const core = words.filter(w => !PREP_SET.has(w) && !SIZE_SET.has(w));
+  const forms = [], rest = [];
+  for(let i = 0; i < core.length; i++){
+    const w = core[i];
+    if(w === 'sun' && core[i+1] === 'dried'){ forms.push('sun-dried'); i++; continue; }
+    if(w === 'white' && core[i-1] === 'egg'){ forms.push('white'); continue; }
+    if(FORM_WORDS[w]){ forms.push(FORM_WORDS[w]); continue; }
+    rest.push(w);
+  }
+  return {words, core, forms, rest};
+}
+/* Name as it would appear in the dictionary: "finely chopped fresh basil" → "basil" */
+function coreName(raw){
+  const {rest, core} = splitName(raw);
+  return (rest.length ? rest : core).join(' ');
+}
+
+/* ---------- dictionary ---------- */
+function buildDict(list){
+  const byKey = {}, index = new Map(), children = {};
+  for(const it of list) byKey[it.key] = it;
+  const add = (name, key) => {
+    const n = normName(name);
+    if(!n) return;
+    if(!index.has(n)) index.set(n, new Set());
+    index.get(n).add(key);
+  };
+  for(const it of list){
+    add(it.display, it.key);
+    add(it.key.replace(/-/g,' '), it.key);
+    for(const a of (it.aliases||[])) add(a, it.key);
+    const p = it.parent && byKey[it.parent] ? it.parent : null;
+    (children[p || ''] = children[p || ''] || []).push(it.key);
+  }
+  for(const k in children) children[k].sort((a,b) => byKey[a].display.localeCompare(byKey[b].display));
+  const sorted = list.slice().sort((a,b) => a.display.localeCompare(b.display));
+  return {byKey, index, children, list: sorted};
+}
+function ancestors(dict, key){
+  const out = [], seen = new Set([key]);
+  let k = dict.byKey[key] && dict.byKey[key].parent;
+  while(k && !seen.has(k) && dict.byKey[k]){ out.push(k); seen.add(k); k = dict.byKey[k].parent; }
+  return out;
+}
+function descendants(dict, key){
+  const out = [], stack = [...(dict.children[key]||[])];
+  while(stack.length){ const k = stack.pop(); if(out.includes(k)) continue; out.push(k); stack.push(...(dict.children[k]||[])); }
+  return out;
+}
+function pathLabel(dict, key){
+  const it = dict.byKey[key];
+  if(!it) return key;
+  return [...ancestors(dict, key).reverse().map(k => dict.byKey[k].display), it.display].join(' › ');
+}
+/* Merge an object-valued setting down the ancestor chain; the nearest ingredient wins. */
+function inherited(dict, key, field){
+  const chain = [key, ...ancestors(dict, key)].reverse();
+  const out = {};
+  for(const k of chain) Object.assign(out, (dict.byKey[k] && dict.byKey[k][field]) || {});
+  return out;
+}
+function isStaple(dict, key){
+  if(!key) return false;
+  return [key, ...ancestors(dict, key)].some(k => dict.byKey[k] && dict.byKey[k].staple);
+}
+
+/* Written name → dictionary key. Tries: exact name, without prep/size words, without form words,
+   then the longest sub-phrase (rightmost first, since the head noun is usually last). */
+function resolveName(dict, raw){
+  const {words, core, forms, rest} = splitName(raw);
+  const res = {key:null, candidates:[], form:null, forms, partial:false};
+  if(!words.length) return res;
+  let hit = null;
+  for(const ws of [words, core, rest]){
+    if(ws.length && (hit = dict.index.get(ws.join(' ')))) break;
+  }
+  if(!hit && rest.length > 1){
+    outer:
+    for(let len = rest.length - 1; len >= 1; len--){
+      for(let st = rest.length - len; st >= 0; st--){
+        const h = dict.index.get(rest.slice(st, st+len).join(' '));
+        if(h){ hit = h; res.partial = true; break outer; }
+      }
+    }
+  }
+  if(!hit) return res;
+  let cands = [...hit];
+  if(cands.length > 1 && forms.length){
+    const f = cands.filter(k => forms.some(x => (dict.byKey[k].forms||[]).includes(x)));
+    if(f.length) cands = f;
+  }
+  res.candidates = cands;
+  if(cands.length === 1){
+    res.key = cands[0];
+    const fs = dict.byKey[res.key].forms || [];
+    res.form = forms.find(x => fs.includes(x)) || null;
+  }
+  return res;
+}
+
+/* ---------- ingredient-line parser ---------- */
+function parseIngredientLine(text, dict){
+  let s = String(text||'').trim().replace(/^\s*(?:[-–•*·▪]|\d+[.)])\s+/, '');
+  if(!s) return null;
+  let role = 'supporting', optional = false, scale = null, formHint = null;
+  const notes = [];
+  s = s.replace(/\[(main|supporting|garnish)\]/i, (_, r) => { role = r.toLowerCase(); return ' '; });
+  if(/\(optional\)|\boptional\b/i.test(s)){ optional = true; s = s.replace(/\(optional\)|,?\s*\boptional\b:?/ig, ' '); }
+  if(/\b(to taste|as needed|as required)\b/i.test(s)){
+    scale = 'taste'; notes.push('to taste');
+    s = s.replace(/,?\s*\b(?:to taste|as needed|as required)\b/ig, ' ');
+  }
+  if(/\b(?:for|to) (?:garnish|serve|serving|decorate)\b/i.test(s)){
+    if(role === 'supporting') role = 'garnish';
+    notes.push('to serve');
+    s = s.replace(/,?\s*\b(?:for|to) (?:garnish|serve|serving|decorate)\b/ig, ' ');
+  }
+  s = s.replace(/\s+/g, ' ').trim().replace(/[,;]\s*$/, '');
+  let m = s.match(/^(juice|zest)\s+(?:of\s+)?(.*)$/i);
+  if(m){ formHint = m[1].toLowerCase(); s = m[2]; }
+  s = s.replace(/^(a|an|one)\s+(?=\S)/i, '1 ');
+
+  let qty = null, qtyMax = null;
+  m = s.match(QTY_RE);
+  if(m){
+    qty = parseNumber(m[1]);
+    if(m[2]) qtyMax = parseNumber(m[2]);
+    s = s.slice(m[0].length).trim();
+  }
+  // parentheticals → note ("1 (400 g) can tomatoes")
+  s = s.replace(/\(([^)]*)\)/g, (_, inner) => { if(inner.trim()) notes.unshift(inner.trim()); return ' '; })
+       .replace(/\s+/g, ' ').trim();
+  // size word before a unit: "1 large handful basil"
+  let w = s.split(' ');
+  if(w.length > 1 && SIZE_SET.has(w[0].toLowerCase()) && unitFromWord(w[1])){ notes.push(w.shift().toLowerCase()); s = w.join(' '); }
+  let unit = null;
+  const fl = s.match(/^(?:fl\.?\s*oz\.?|fluid\s+ounces?)(?=\s|$)/i);
+  if(fl){ unit = 'floz'; s = s.slice(fl[0].length).trim(); }
+  else{
+    const um = s.match(/^([A-Za-z]+)\.?(?=\s|$)/);
+    if(um){
+      const u = unitFromWord(um[1]);
+      // without a number only accept unmistakable count words ("pinch of salt")
+      if(u && (qty != null || (UNITS[u].dim === 'count' && um[1].length > 2))){
+        unit = u; s = s.slice(um[0].length).trim();
+        if(qty == null) qty = 1;
+      }
+    }
+  }
+  s = s.replace(/^of\s+/i, '');
+  const comma = s.indexOf(',');
+  let name = (comma >= 0 ? s.slice(0, comma) : s).trim();
+  if(comma >= 0){ const after = s.slice(comma+1).trim(); if(after) notes.unshift(after); }
+  name = name.replace(/^(?:of|the)\s+/i, '').replace(/[.,;:]+$/, '').trim();
+
+  const r = resolveName(dict, name + (comma >= 0 ? ' ' + s.slice(comma+1) : ''));
+  // Re-resolve on the name alone when the note added noise but the name works on its own
+  const r2 = resolveName(dict, name);
+  const res = (r2.key || r2.candidates.length) ? Object.assign(r2, {forms: [...new Set([...r2.forms, ...r.forms])]}) : r;
+  let form = null;
+  const ing = res.key ? dict.byKey[res.key] : null;
+  const allowed = ing ? (ing.forms||[]) : [];
+  const wanted = [formHint, ...res.forms].filter(Boolean);
+  const uniqParts = [...new Set(wanted.filter(f => PART_FORMS.has(f)))];
+  if(uniqParts.length > 1) form = allowed.includes('whole') ? 'whole' : null;   // "zested and juiced"
+  else form = wanted.find(f => allowed.includes(f)) || null;   // ingredients with no forms listed stay "any"
+  if(!form && (unit === 'can') && allowed.includes('canned')) form = 'canned';
+  if(!ing && !form) form = wanted[0] || null;
+  return {
+    qty, qtyMax, unit, name: name || s,
+    key: res.key, candidates: res.candidates,
+    form: form || 'any',
+    note: notes.join(', '),
+    role, optional,
+    scale: scale || (ing && ing.default_scale) || 'linear',
+    section: '',
+  };
+}
+/* Several lines; "For the sauce:" headers set the section; "salt and pepper" splits in two. */
+function parseIngredientText(text, dict){
+  const out = [];
+  let section = '';
+  for(const raw of String(text||'').split(/\r?\n/)){
+    const t = raw.trim();
+    if(!t) continue;
+    const h = t.match(/^(?:for\s+the\s+)?([^:\d]{1,40}):$/i);
+    if(h){ section = h[1].trim().toLowerCase(); continue; }
+    const line = parseIngredientLine(t, dict);
+    if(!line) continue;
+    if(line.qty == null && / and /i.test(line.name)){
+      const halves = line.name.split(/\s+and\s+/i).map(x => parseIngredientLine(x, dict));
+      if(halves.length === 2 && halves.every(x => x && (x.key || x.candidates.length))){
+        for(const x of halves){ x.note = line.note; x.scale = line.scale === 'taste' ? 'taste' : x.scale; x.role = line.role; x.optional = line.optional; x.section = section; out.push(x); }
+        continue;
+      }
+    }
+    line.section = section;
+    out.push(line);
+  }
+  return out;
+}
+
+/* ---------- amounts & scaling ---------- */
+function metricParts(base, small, big){
+  if(base >= 1000) return {num: numStr(Math.round(base/10)/100), unit: big};
+  const v = base >= 100 ? Math.round(base/5)*5 : base >= 10 ? Math.round(base) : Math.round(base*10)/10;
+  return {num: numStr(v), unit: small};
+}
+function usVolParts(ml){
+  const tsp = ml / 4.92892;
+  if(tsp >= 12){
+    // under a cup, only measuring-cup sizes (¼ ⅓ ½ ⅔ ¾); otherwise tablespoons
+    const cups = tsp / 48, f = fracStr(cups, tsp >= 48 ? [2,3,4,8] : [2,3,4]);
+    if(f.err/cups < 0.04 || tsp >= 48) return {num: f.str, unit: f.val > 1 ? 'cups' : 'cup'};
+    if(cups > 0.5){   // ⅝ cup → "½ cup + 2 tbsp"
+      const basePart = [3/4, 2/3, 1/2].find(b => b <= cups + 1e-9);
+      const tb = Math.round((cups - basePart) * 16 * 2) / 2;
+      if(tb > 0 && tb <= 4) return {num: fracStr(basePart, [2,3,4]).str, unit: `cup + ${fracStr(tb, [2]).str} tbsp`};
+    }
+    return {num: fracStr(tsp/3, [2]).str, unit: 'tbsp'};
+  }
+  if(tsp >= 3){
+    const tb = fracStr(tsp/3, [2,3,4]);
+    if(tb.err/(tsp/3) < 0.05) return {num: tb.str, unit: 'tbsp'};
+  }
+  if(tsp < 1/16) return {num: '', unit: 'pinch'};
+  return {num: fracStr(tsp, [2,4,8]).str, unit: 'tsp'};
+}
+function usWtParts(g){
+  const oz = g / 28.3495;
+  if(oz >= 16){
+    const lb = oz/16, f = fracStr(lb, [2,4]);
+    if(f.err/lb < 0.04) return {num: f.str, unit: 'lb'};
+    const whole = Math.floor(lb), rem = Math.round(oz - whole*16);
+    return rem ? {num: `${whole} lb ${rem}`, unit: 'oz'} : {num: String(whole), unit: 'lb'};
+  }
+  const f = fracStr(oz, oz < 1 ? [2,4,8] : [2,4]);
+  return {num: f.err/oz > 0.05 ? numStr(Math.round(oz*10)/10) : f.str, unit: 'oz'};
+}
+/* pref: 'entered' (keep the unit system the recipe was written in) | 'metric' | 'us' */
+function formatAmountParts(q, unitKey, pref){
+  const u = unitKey ? UNITS[unitKey] : null;
+  if(!u || u.dim === 'count'){
+    const f = q < 0.2 ? fracStr(q, [8]) : fracStr(q, [2,3,4]);
+    const num = f.val === 0 ? numStr(q) : f.str;
+    return {num, unit: u ? ((f.val || q) > 1 ? u.many : u.one) : ''};
+  }
+  const base = q * u.f;
+  const sys = (pref === 'metric' || pref === 'us') ? pref : u.sys;
+  if(u.dim === 'vol') return sys === 'metric' ? metricParts(base, 'ml', 'l') : usVolParts(base);
+  return sys === 'metric' ? metricParts(base, 'g', 'kg') : usWtParts(base);
+}
+function joinParts(p){ return [p.num, p.unit].filter(Boolean).join(' '); }
+function formatAmount(q, unitKey, pref){ return q == null ? '' : joinParts(formatAmountParts(q, unitKey, pref)); }
+function formatRange(q, qm, unitKey, pref){
+  if(q == null) return '';
+  if(qm == null) return formatAmount(q, unitKey, pref);
+  const a = formatAmountParts(q, unitKey, pref), b = formatAmountParts(qm, unitKey, pref);
+  return a.unit === b.unit ? joinParts({num: `${a.num}–${b.num}`, unit: b.unit}) : `${joinParts(a)} – ${joinParts(b)}`;
+}
+function adjustNameNumber(name, from, to){
+  const m = String(name).match(/^(.*?)([A-Za-zÀ-ÿ]+)$/);
+  if(!m) return name;
+  const w = m[2], lw = w.toLowerCase(), sing = singularize(lw);
+  if(from > 1 && to <= 1 && sing !== lw) return m[1] + (w[0] !== lw[0] ? sing[0].toUpperCase() + sing.slice(1) : sing);
+  if(from <= 1 && to > 1 && sing === lw) return m[1] + pluralizeWord(w);
+  return name;
+}
+/* One ingredient line at a scale factor → what to display. Never changes the stored line. */
+function scaleLine(line, factor, pref, dict, recipe){
+  const out = {amount:'', name: line.name, note: line.note || '', warns: []};
+  let f = factor;
+  if(line.scale === 'none'){ if(factor !== 1 && line.qty != null) out.warns.push("Not scaled — keep the original amount"); f = 1; }
+  else if(line.scale === 'taste' && factor !== 1) out.warns.push('Adjust to taste');
+  if(line.qty != null){
+    const q = line.qty * f, qm = line.qtyMax != null ? line.qtyMax * f : null;
+    out.amount = formatRange(q, qm, line.unit, pref);
+    if(!line.unit) out.name = adjustNameNumber(line.name, line.qtyMax != null ? line.qtyMax : line.qty, qm != null ? qm : q);
+    const ing = line.key && dict ? dict.byKey[line.key] : null;
+    const pack = line.unit && ['can','jar','package'].includes(line.unit);
+    if(pack && f !== 1 && Math.abs(q - Math.round(q)) > 0.01){
+      // "1 (400 g) can" → "that's about 200 g"
+      const sm = (line.note || '').match(new RegExp(`^(${NUM})\\s*([A-Za-z. ]+?)(?:,|$)`));
+      const su = sm && unitFromWord(sm[2].trim().split(' ')[0]);
+      const sq = sm && parseNumber(sm[1]);
+      if(su && sq && UNITS[su].dim !== 'count') out.warns.push(`That's about ${formatAmount(q * sq, su, pref)}`);
+    }
+    if(ing && ing.whole_only && f !== 1 && Math.abs(q - Math.round(q)) > 0.01){
+      const lo = Math.floor(q), hi = Math.ceil(q);
+      if(line.key === 'egg' && Math.abs(q - lo - 0.5) < 0.13)
+        out.warns.push(`Use ${lo ? lo + ' egg' + (lo > 1 ? 's' : '') + ' plus ' : ''}half a beaten egg (about 25 g)`);
+      else out.warns.push(`Hard to split — round to ${lo || 1}${lo && lo !== hi ? ' or ' + hi : ''}`);
+    }
+    if(factor !== 1 && LEAVENING.has(line.key)) out.warns.push("Leavening doesn't always scale exactly — check the rise");
+  }
+  return out;
+}
+/* Step text with {n} tokens → segments [{t:'text'|'amt', v}] at the current scale. */
+function stepSegments(step, lines, factor, pref){
+  const segs = [];
+  const re = /\{(\d+)\}/g;
+  let last = 0, m;
+  while((m = re.exec(step))){
+    if(m.index > last) segs.push({t:'text', v: step.slice(last, m.index)});
+    const line = lines[+m[1]];
+    let adjust = null;
+    if(line && line.qty != null){
+      const f = line.scale === 'none' ? 1 : factor;
+      segs.push({t:'amt', v: formatRange(line.qty*f, line.qtyMax != null ? line.qtyMax*f : null, line.unit, pref)});
+      if(!line.unit && f !== 1) adjust = {from: line.qtyMax != null ? line.qtyMax : line.qty, to: (line.qtyMax != null ? line.qtyMax : line.qty) * f, head: coreName(line.name).split(' ').pop()};
+    } else segs.push({t:'text', v: m[0]});
+    last = re.lastIndex;
+    if(adjust){
+      // fix the noun right after a unitless amount: "{2} eggs" → "1 egg"
+      const next = step.slice(last).match(/^((?:\s+[A-Za-zÀ-ÿ'-]+){1,4})/);
+      if(next){
+        const words = next[1].split(/(\s+)/);
+        const wi = words.findIndex(w => w.trim() && singularize(normText(w)) === adjust.head);
+        if(wi >= 0){
+          words[wi] = adjustNameNumber(words[wi], adjust.from, adjust.to);
+          segs.push({t:'text', v: words.join('')});
+          last += next[1].length;
+        }
+      }
+    }
+  }
+  if(last < step.length) segs.push({t:'text', v: step.slice(last)});
+  return segs;
+}
+/* Find "2 tbsp olive oil"-style amounts in a step that match an ingredient line, and replace
+   the amount with a {n} token so it scales. Only links when amount, unit AND name all agree. */
+function autoLinkStep(step, lines, dict){
+  const re = new RegExp(`(^|[^\\w{/.])(${NUM})`, 'g');
+  const reps = [];
+  let m;
+  while((m = re.exec(step))){
+    const start = m.index + m[1].length;
+    const qty = parseNumber(m[2]);
+    let end = start + m[2].length;
+    if(qty == null) continue;
+    const after = step.slice(end);
+    let unit = null;
+    const um = after.match(/^\s*(fl\.?\s*oz\.?|[A-Za-z]+)\.?/);
+    if(um){
+      const u = /^fl/i.test(um[1]) && /oz/i.test(um[1]) ? 'floz' : unitFromWord(um[1]);
+      if(u){ unit = u; end += um[0].length; }
+    }
+    if(/^\w/.test(step.slice(end)) && !unit) continue;
+    const following = normName(step.slice(end, end + 60)).split(' ').slice(0, 6);
+    const idx = lines.findIndex(l => {
+      if(l.qty == null || Math.abs(l.qty - qty) > 1e-6 || (l.unit || null) !== unit) return false;
+      const heads = new Set();
+      const cn = coreName(l.name).split(' ').filter(Boolean);
+      if(cn.length) heads.add(cn[cn.length-1]);
+      const ing = l.key && dict ? dict.byKey[l.key] : null;
+      if(ing){ const d = normName(ing.display).split(' '); heads.add(d[d.length-1]); }
+      return following.some(w => heads.has(w));
+    });
+    if(idx >= 0) reps.push({start, end, idx});
+  }
+  let out = step;
+  for(const r of reps.reverse()) out = out.slice(0, r.start) + `{${r.idx}}` + out.slice(r.end);
+  return out;
+}
+function autoLinkSteps(steps, lines, dict){ return steps.map(s => autoLinkStep(s, lines, dict)); }
+
+/* ---------- matching / search ---------- */
+/* Kind score from the hierarchy: same or more specific = 1; related = 0.5; siblings use the
+   parent's sibling_score (default 0.5), fading 20% per extra level; having the parent = 0.4. */
+function kindScore(dict, need, have){
+  if(!need || !have) return 0;
+  if(need === have) return 1;
+  const ah = ancestors(dict, have);
+  if(ah.includes(need)) return 1;
+  const an = ancestors(dict, need);
+  const ni = dict.byKey[need], hi = dict.byKey[have];
+  let best = 0;
+  if((ni && (ni.related||[]).includes(have)) || (hi && (hi.related||[]).includes(need))) best = 0.5;
+  const idx = an.indexOf(have);
+  if(idx >= 0) return Math.max(best, idx === 0 ? 0.4 : 0.2);
+  const chainN = [need, ...an], chainH = [have, ...ah];
+  for(let i = 1; i < chainN.length; i++){
+    const j = chainH.indexOf(chainN[i]);
+    if(j > 0){
+      const lca = dict.byKey[chainN[i]];
+      const sib = lca && lca.sibling_score != null ? lca.sibling_score : 0.5;
+      best = Math.max(best, sib * Math.pow(0.8, (i-1) + (j-1)));
+      break;
+    }
+  }
+  return best;
+}
+function formScore(dict, needKey, needForm, haveForm){
+  if(!needForm || needForm === 'any' || !haveForm || haveForm === 'any' || needForm === haveForm) return 1;
+  const ov = inherited(dict, needKey, 'form_overrides');
+  const o = ov[`${haveForm}>${needForm}`] != null ? ov[`${haveForm}>${needForm}`] : ov[`${needForm}>${haveForm}`];
+  if(o != null) return o;
+  const np = PART_FORMS.has(needForm), hp = PART_FORMS.has(haveForm);
+  if(np && hp) return 0;
+  if(np) return (haveForm === 'whole' || haveForm === 'fresh') ? 1 : 0;
+  if(hp) return 0.3;
+  const k = [needForm, haveForm].sort().join('|');
+  return DEFAULT_FORM_SCORES[k] != null ? DEFAULT_FORM_SCORES[k] : 0.5;
+}
+/* "use ⅓ as much" when swapping forms, from form_ratios like {"fresh>dried": 0.33} */
+function ratioHint(dict, needKey, needForm, haveForm){
+  if(!needForm || !haveForm || needForm === 'any' || haveForm === 'any' || needForm === haveForm) return '';
+  const r = inherited(dict, needKey, 'form_ratios');
+  let x = r[`${needForm}>${haveForm}`];
+  if(x == null && r[`${haveForm}>${needForm}`]) x = 1 / r[`${haveForm}>${needForm}`];
+  if(!x) return '';
+  if(x < 1){ const f = fracStr(x, [2,3,4]); return `use ${f.err < 0.03 ? f.str : numStr(x) + '×'} as much`; }
+  return `use ${numStr(x)}× as much`;
+}
+const ROLE_WEIGHTS = {main:3, supporting:2, garnish:1};
+function scoreRecipe(recipe, haves, dict){
+  let tot = 0, got = 0;
+  const exact = [], subs = [], missing = [], staples = [], used = new Set();
+  for(const line of recipe.ingredients){
+    const staple = isStaple(dict, line.key);
+    const w = (line.optional || staple) ? 0 : (ROLE_WEIGHTS[line.role] || 2);
+    let best = {score: 0};
+    if(line.key){
+      for(const h of haves){
+        const k = kindScore(dict, line.key, h.key);
+        if(!k) continue;
+        const f = formScore(dict, line.key, line.form, h.form);
+        if(k*f > best.score) best = {score: k*f, have: h, kind: k, form: f};
+      }
+    }
+    if(best.score > 0) used.add(best.have.key + '|' + (best.have.form || 'any'));
+    tot += w; got += w * best.score;
+    const label = (line.key && dict.byKey[line.key] ? dict.byKey[line.key].display : line.name)
+      + (line.form && line.form !== 'any' ? ` (${line.form})` : '');
+    if(w === 0){ if(staple && !line.optional && best.score === 0) staples.push(label); continue; }
+    if(best.score >= 0.999) exact.push(label);
+    else if(best.score > 0){
+      const hv = dict.byKey[best.have.key];
+      subs.push({
+        need: label,
+        have: (hv ? hv.display : best.have.key) + (best.have.form && best.have.form !== 'any' ? ` (${best.have.form})` : ''),
+        score: best.score,
+        hint: ratioHint(dict, line.key, line.form, best.have.form),
+      });
+    }
+    else missing.push(label);
+  }
+  const coverage = tot ? got / tot : (recipe.ingredients.length ? 1 : 0);
+  const uses = haves.length ? used.size / haves.length : 0;
+  return {coverage, uses, exact, subs, missing, staples, usedCount: used.size};
+}
+function searchRecipes(recipes, haves, dict, opts){
+  opts = opts || {};
+  if(!haves.length) return [];
+  const out = [];
+  for(const r of recipes){
+    const s = scoreRecipe(r, haves, dict);
+    if(s.usedCount === 0) continue;
+    if(opts.maxMissing != null && s.missing.length > opts.maxMissing) continue;
+    if(opts.tag && !(r.tags||[]).includes(opts.tag)) continue;
+    if(opts.maxTime && ((+r.prep_min||0) + (+r.cook_min||0)) > opts.maxTime) continue;
+    out.push({recipe: r, ...s});
+  }
+  const primary = opts.sort === 'uses' ? (x => x.uses + x.coverage/1000) : (x => x.coverage + x.uses/1000);
+  out.sort((a,b) => {
+    const d = primary(b) - primary(a);
+    if(Math.abs(d) > 1e-9) return d;
+    const la = a.recipe.last_cooked || '', lb = b.recipe.last_cooked || '';
+    return la < lb ? -1 : la > lb ? 1 : 0;   // never/longest-ago cooked first
+  });
+  return out;
+}
+
+/* ---------- starter data ---------- */
+/* key | Display | parent | aliases;… | forms,… | flags
+   flags: staple · whole · aisle:x · sib:0.5 · scale:none|taste · related:a,b · ratio:fresh>dried=0.33 · ov:fresh>dried=0.8 */
+const SEED_INGREDIENTS = `
+salt|Salt||sea salt;kosher salt;table salt||staple aisle:spices
+black-pepper|Black pepper||pepper;peppercorn;black peppercorn|whole,ground|staple aisle:spices
+water|Water||||staple aisle:other
+oil|Cooking oil||oil;cooking oil||staple aisle:pantry sib:0.8
+olive-oil|Olive oil|oil|extra virgin olive oil;evoo||aisle:pantry
+vegetable-oil|Vegetable oil|oil|canola oil;sunflower oil;neutral oil;rapeseed oil||aisle:pantry
+coconut-oil|Coconut oil|oil|||aisle:pantry
+sesame-oil|Sesame oil||toasted sesame oil||aisle:pantry
+butter|Butter||unsalted butter;salted butter||aisle:dairy
+sugar|Sugar||granulated sugar;white sugar;caster sugar||aisle:baking sib:0.7
+brown-sugar|Brown sugar|sugar|light brown sugar;dark brown sugar||aisle:baking
+powdered-sugar|Powdered sugar|sugar|icing sugar;confectioners sugar||aisle:baking
+flour|Flour||all purpose flour;plain flour;ap flour||aisle:baking sib:0.7
+bread-flour|Bread flour|flour|strong flour||aisle:baking
+whole-wheat-flour|Whole wheat flour|flour|wholemeal flour||aisle:baking
+baking-powder|Baking powder||||aisle:baking
+baking-soda|Baking soda||bicarbonate of soda;bicarb;bicarb soda||aisle:baking
+yeast|Yeast||active dry yeast;instant yeast||aisle:baking
+cornstarch|Cornstarch||cornflour;corn starch||aisle:baking
+vanilla|Vanilla||vanilla extract;vanilla essence;vanilla bean||aisle:baking
+cocoa|Cocoa powder||cocoa;unsweetened cocoa powder||aisle:baking
+chocolate|Chocolate||chocolate chip;dark chocolate;milk chocolate||aisle:baking
+honey|Honey||||aisle:pantry
+maple-syrup|Maple syrup||||aisle:pantry
+soy-sauce|Soy sauce||soy;tamari;shoyu;light soy sauce||aisle:pantry
+vinegar|Vinegar||white vinegar;distilled vinegar||aisle:pantry sib:0.5
+apple-cider-vinegar|Apple cider vinegar|vinegar|cider vinegar||aisle:pantry
+balsamic-vinegar|Balsamic vinegar|vinegar|balsamic||aisle:pantry
+rice-vinegar|Rice vinegar|vinegar|rice wine vinegar||aisle:pantry
+wine-vinegar|Wine vinegar|vinegar|red wine vinegar;white wine vinegar||aisle:pantry
+mustard|Mustard||dijon mustard;dijon;wholegrain mustard;yellow mustard||aisle:pantry
+mayonnaise|Mayonnaise||mayo||aisle:pantry
+ketchup|Ketchup||tomato ketchup||aisle:pantry
+peanut-butter|Peanut butter||||aisle:pantry
+stock|Stock||broth;stock cube;bouillon||aisle:pantry sib:0.7
+chicken-stock|Chicken stock|stock|chicken broth||aisle:pantry
+beef-stock|Beef stock|stock|beef broth||aisle:pantry
+vegetable-stock|Vegetable stock|stock|vegetable broth;veggie stock||aisle:pantry
+coconut-milk|Coconut milk||coconut cream||aisle:pantry
+rice|Rice||white rice;long grain rice||aisle:grains sib:0.7
+basmati-rice|Basmati rice|rice|basmati||aisle:grains
+jasmine-rice|Jasmine rice|rice|jasmine||aisle:grains
+brown-rice|Brown rice|rice|||aisle:grains
+arborio-rice|Arborio rice|rice|risotto rice;arborio||aisle:grains
+pasta|Pasta||dried pasta|dried,fresh|aisle:grains sib:0.85
+spaghetti|Spaghetti|pasta||dried,fresh|aisle:grains
+linguine|Linguine|pasta||dried,fresh|aisle:grains
+penne|Penne|pasta||dried|aisle:grains
+macaroni|Macaroni|pasta|elbow macaroni|dried|aisle:grains
+noodles|Noodles||egg noodles;rice noodles;ramen noodles||aisle:grains
+bread|Bread||sandwich bread;sourdough;loaf||aisle:bakery
+breadcrumbs|Breadcrumbs||panko;bread crumbs;dried breadcrumbs||aisle:bakery
+tortilla|Tortilla||flour tortilla;corn tortilla;wrap||aisle:bakery
+oats|Oats||rolled oats;oatmeal;porridge oats||aisle:grains
+lentils|Lentils||red lentils;green lentils;brown lentils|dried,canned|aisle:pantry
+beans|Beans|||dried,canned|aisle:pantry sib:0.6
+black-beans|Black beans|beans||dried,canned|aisle:pantry
+kidney-beans|Kidney beans|beans|red kidney beans|dried,canned|aisle:pantry
+chickpeas|Chickpeas|beans|garbanzo beans;garbanzo;chick peas|dried,canned|aisle:pantry
+cannellini-beans|Cannellini beans|beans|white beans;butter beans|dried,canned|aisle:pantry
+onion|Onion||yellow onion;brown onion|fresh,powder|aisle:produce sib:0.8
+red-onion|Red onion|onion|purple onion|fresh|aisle:produce
+white-onion|White onion|onion||fresh|aisle:produce
+shallot|Shallot|onion|||aisle:produce
+scallion|Scallion||green onion;spring onion||aisle:produce related:onion
+garlic|Garlic||garlic clove|fresh,powder|aisle:produce
+ginger|Ginger||ginger root|fresh,ground,paste|aisle:produce ratio:fresh>ground=0.25
+tomato|Tomato||passata|fresh,canned,paste,puree,sun-dried|aisle:produce
+cherry-tomato|Cherry tomato|tomato|grape tomato|fresh,canned|aisle:produce
+potato|Potato||russet potato;yukon gold potato;new potato||aisle:produce
+sweet-potato|Sweet potato||yam||aisle:produce related:potato
+carrot|Carrot||||aisle:produce
+celery|Celery||celery stalk;celery stick||aisle:produce
+bell-pepper|Bell pepper||pepper;red pepper;green pepper;yellow pepper;capsicum;red bell pepper;green bell pepper;yellow bell pepper|fresh,frozen|aisle:produce
+chili-pepper|Chili pepper||pepper;chili;chilli;chile;hot pepper;red chili;green chili;fresh chili|fresh,dried,powder|aisle:produce sib:0.6
+jalapeno|Jalapeño|chili-pepper|jalapeno pepper|fresh,canned|aisle:produce
+chipotle|Chipotle|jalapeno|chipotle pepper;chipotle in adobo|dried,canned,powder|aisle:pantry
+habanero|Habanero|chili-pepper|habanero pepper|fresh,dried|aisle:produce related:scotch-bonnet
+scotch-bonnet|Scotch bonnet|chili-pepper|scotch bonnet pepper|fresh|aisle:produce
+serrano|Serrano|chili-pepper|serrano pepper|fresh|aisle:produce
+thai-chili|Thai chili|chili-pepper|birds eye chili;thai chilli;birds eye chilli|fresh,dried|aisle:produce
+cayenne|Cayenne|chili-pepper|cayenne pepper|powder,fresh|aisle:spices
+chili-flakes|Chili flakes|chili-pepper|red pepper flakes;crushed red pepper;chilli flakes;red chili flakes||aisle:spices
+chili-powder|Chili powder||chilli powder||aisle:spices related:chili-pepper
+mushroom|Mushroom||button mushroom;cremini mushroom;chestnut mushroom|fresh,dried|aisle:produce
+spinach|Spinach||baby spinach|fresh,frozen|aisle:produce
+lettuce|Lettuce||romaine;iceberg lettuce;romaine lettuce||aisle:produce
+cucumber|Cucumber||||aisle:produce
+zucchini|Zucchini||courgette||aisle:produce
+eggplant|Eggplant||aubergine||aisle:produce
+broccoli|Broccoli||broccoli floret|fresh,frozen|aisle:produce
+cauliflower|Cauliflower|||fresh,frozen|aisle:produce
+corn|Corn||sweetcorn;sweet corn;corn kernel|fresh,frozen,canned|aisle:produce
+peas|Peas||green peas;garden peas|fresh,frozen,canned|aisle:frozen
+green-beans|Green beans||string beans;french beans|fresh,frozen,canned|aisle:produce
+cabbage|Cabbage||||aisle:produce
+kale|Kale||||aisle:produce
+avocado|Avocado||||aisle:produce
+lemon|Lemon|||whole,juice,zest|aisle:produce related:lime
+lime|Lime|||whole,juice,zest|aisle:produce related:lemon
+orange|Orange|||whole,juice,zest|aisle:produce
+apple|Apple||||aisle:produce
+banana|Banana||||aisle:produce
+strawberry|Strawberry|||fresh,frozen|aisle:produce
+blueberry|Blueberry|||fresh,frozen|aisle:produce
+herb|Herbs||mixed herbs;italian seasoning|fresh,dried|aisle:produce sib:0.25 ratio:fresh>dried=0.33
+basil|Basil|herb|basil leaf|fresh,dried|aisle:produce
+cilantro|Cilantro|herb|coriander;coriander leaf;fresh coriander|fresh,dried|aisle:produce
+parsley|Parsley|herb|flat leaf parsley;italian parsley;curly parsley|fresh,dried|aisle:produce
+thyme|Thyme|herb||fresh,dried|aisle:produce
+rosemary|Rosemary|herb||fresh,dried|aisle:produce
+oregano|Oregano|herb||fresh,dried|aisle:produce
+mint|Mint|herb||fresh,dried|aisle:produce
+dill|Dill|herb||fresh,dried|aisle:produce
+bay-leaf|Bay leaf|herb|bay|fresh,dried|aisle:spices scale:none
+cumin|Cumin||cumin seed|seed,ground|aisle:spices
+coriander-seed|Coriander seed||coriander|seed,ground|aisle:spices
+paprika|Paprika||sweet paprika||aisle:spices sib:0.7
+smoked-paprika|Smoked paprika|paprika|pimenton||aisle:spices
+cinnamon|Cinnamon||cinnamon stick|whole,ground|aisle:spices
+turmeric|Turmeric|||fresh,ground|aisle:spices
+garam-masala|Garam masala||||aisle:spices
+curry-powder|Curry powder||||aisle:spices
+nutmeg|Nutmeg|||whole,ground|aisle:spices
+chicken|Chicken||whole chicken|fresh,frozen|aisle:meat sib:0.8
+chicken-breast|Chicken breast|chicken|chicken breast fillet|fresh,frozen|aisle:meat
+chicken-thigh|Chicken thigh|chicken|chicken thigh fillet|fresh,frozen|aisle:meat
+chicken-wing|Chicken wing|chicken||fresh,frozen|aisle:meat
+beef|Beef|||fresh,frozen|aisle:meat sib:0.6
+ground-beef|Ground beef|beef|minced beef;beef mince;mince;hamburger meat|fresh,frozen|aisle:meat
+steak|Steak|beef|beef steak;sirloin;ribeye|fresh,frozen|aisle:meat
+stewing-beef|Stewing beef|beef|beef chuck;chuck;stew meat|fresh,frozen|aisle:meat
+pork|Pork|||fresh,frozen|aisle:meat sib:0.6
+pork-chop|Pork chop|pork||fresh,frozen|aisle:meat
+ground-pork|Ground pork|pork|pork mince;minced pork|fresh,frozen|aisle:meat
+bacon|Bacon||streaky bacon;bacon rasher;rasher||aisle:meat related:pork
+sausage|Sausage||||aisle:meat
+lamb|Lamb||lamb mince;ground lamb|fresh,frozen|aisle:meat
+fish|Fish||white fish|fresh,frozen|aisle:seafood sib:0.6
+salmon|Salmon|fish|salmon fillet|fresh,frozen|aisle:seafood
+cod|Cod|fish|cod fillet|fresh,frozen|aisle:seafood
+tuna|Tuna|fish|tuna steak|fresh,canned|aisle:seafood
+shrimp|Shrimp||prawn;king prawn|fresh,frozen|aisle:seafood
+egg|Egg||large egg|whole,yolk,white|aisle:dairy whole
+tofu|Tofu||firm tofu;silken tofu;extra firm tofu||aisle:other
+milk|Milk||whole milk;skim milk;semi skimmed milk;full fat milk||aisle:dairy
+cream|Cream||heavy cream;double cream;whipping cream;single cream;heavy whipping cream||aisle:dairy
+sour-cream|Sour cream||soured cream||aisle:dairy related:greek-yogurt
+yogurt|Yogurt||plain yogurt;yoghurt;natural yogurt||aisle:dairy sib:0.8
+greek-yogurt|Greek yogurt|yogurt|greek yoghurt||aisle:dairy
+cheese|Cheese||||aisle:dairy sib:0.4
+cheddar|Cheddar|cheese|cheddar cheese;sharp cheddar||aisle:dairy
+mozzarella|Mozzarella|cheese|mozzarella cheese||aisle:dairy
+parmesan|Parmesan|cheese|parmigiano reggiano;parmesan cheese;parmigiano||aisle:dairy
+feta|Feta|cheese|feta cheese||aisle:dairy
+cream-cheese|Cream cheese||||aisle:dairy
+olive|Olive||kalamata olive;black olive;green olive||aisle:pantry
+sesame-seeds|Sesame seeds||sesame seed;sesame||aisle:pantry
+peanut|Peanut||peanuts;roasted peanut||aisle:pantry
+`;
+function parseSeedIngredients(text){
+  const out = [];
+  for(const raw of text.split('\n')){
+    const t = raw.trim();
+    if(!t) continue;
+    const [key, display, parent, aliases, forms, flags] = t.split('|').map(x => (x||'').trim());
+    const it = {key, display, parent: parent || null,
+      aliases: aliases ? aliases.split(';').map(s => s.trim()).filter(Boolean) : [],
+      forms: forms ? forms.split(',').map(s => s.trim()).filter(Boolean) : [],
+      staple:false, whole_only:false, aisle:'other', related:[], sibling_score:0.5,
+      form_overrides:{}, form_ratios:{}, default_scale:'linear'};
+    for(const fl of (flags||'').split(/\s+/).filter(Boolean)){
+      const [k, v] = fl.split(':');
+      if(k === 'staple') it.staple = true;
+      else if(k === 'whole') it.whole_only = true;
+      else if(k === 'aisle') it.aisle = v;
+      else if(k === 'sib') it.sibling_score = +v;
+      else if(k === 'scale') it.default_scale = v;
+      else if(k === 'related') it.related = v.split(',');
+      else if(k === 'ratio' || k === 'ov'){ const [pair, num] = v.split('='); (k === 'ratio' ? it.form_ratios : it.form_overrides)[pair] = +num; }
+    }
+    out.push(it);
+  }
+  return out;
+}
+
+const SEED_RECIPES = [
+  {title:'Tomato Basil Spaghetti', servings:4, prep:10, cook:20, tags:['pasta','vegetarian','quick'],
+   ingredients:`400 g spaghetti [main]
+2 tbsp olive oil
+4 cloves garlic, thinly sliced
+1 (400 g) can chopped tomatoes [main]
+250 g cherry tomatoes, halved
+1/2 tsp chili flakes (optional)
+1 large handful fresh basil [garnish]
+salt, to taste
+black pepper, to taste
+40 g parmesan, grated, to serve`,
+   steps:[
+    'Cook 400 g spaghetti in a large pot of well-salted boiling water until just al dente. Save a mug of the cooking water before draining.',
+    'Meanwhile, warm 2 tbsp olive oil in a wide pan over medium heat and gently cook the garlic for 1–2 minutes, without letting it brown.',
+    'Add the canned tomatoes, cherry tomatoes and chili flakes. Simmer for 10 minutes until the cherry tomatoes start to burst. Season.',
+    'Toss the pasta through the sauce with a splash of the cooking water. Tear in the basil and serve with the parmesan.']},
+  {title:'Chicken Fajitas', servings:4, prep:15, cook:15, tags:['mexican','chicken','quick'],
+   ingredients:`600 g chicken breast, cut into strips [main]
+2 bell peppers, sliced [main]
+1 red onion, sliced
+2 tbsp vegetable oil
+2 tsp smoked paprika
+1 tsp ground cumin
+1 tsp chili powder
+1 lime, juiced
+8 tortillas [main]
+100 g sour cream [garnish]
+1 avocado, sliced [garnish]
+salt, to taste`,
+   steps:[
+    'Mix 2 tsp smoked paprika, 1 tsp ground cumin, 1 tsp chili powder and a good pinch of salt. Toss with the chicken and half the lime juice.',
+    'Heat half the oil in a large frying pan over high heat. Cook the chicken for 5–6 minutes until cooked through, then set aside.',
+    'Add the rest of the oil, the peppers and the onion. Cook for 4–5 minutes until softened but still with some bite.',
+    'Return the chicken, add the remaining lime juice, and serve in warmed tortillas with sour cream and avocado.']},
+  {title:'Chickpea & Spinach Curry', servings:4, prep:10, cook:25, tags:['curry','vegan','vegetarian'],
+   ingredients:`1 tbsp vegetable oil
+1 onion, finely chopped
+3 cloves garlic, minced
+1 tbsp fresh ginger, grated
+2 tbsp curry powder
+1 tsp ground turmeric
+2 (400 g) cans chickpeas, drained [main]
+1 (400 ml) can coconut milk [main]
+1 (400 g) can chopped tomatoes
+100 g baby spinach
+1/2 lime, juiced
+1 handful fresh cilantro [garnish]
+salt, to taste
+cooked rice, to serve (optional)`,
+   steps:[
+    'Heat 1 tbsp vegetable oil in a large pan and cook the onion for 6–8 minutes until soft and golden.',
+    'Stir in the garlic, ginger, 2 tbsp curry powder and 1 tsp ground turmeric. Cook for 1 minute until fragrant.',
+    'Add the chickpeas, coconut milk and tomatoes. Simmer for 15 minutes, stirring now and then.',
+    'Stir in 100 g baby spinach until wilted, then add the lime juice and season. Scatter over the cilantro and serve with rice.']},
+  {title:'Egg Fried Rice', servings:2, prep:10, cook:10, tags:['rice','quick','vegetarian'],
+   ingredients:`300 g cooked rice [main]
+2 eggs [main]
+1 tbsp vegetable oil
+100 g frozen peas
+1 carrot, finely diced
+2 scallions, sliced
+2 cloves garlic, minced
+2 tbsp soy sauce
+1 tsp sesame oil`,
+   steps:[
+    'Heat 1 tbsp vegetable oil in a wok over high heat. Stir-fry the carrot for 2 minutes, then add the garlic and the white parts of the scallions.',
+    'Add the rice and peas and stir-fry for 3–4 minutes until piping hot.',
+    'Push everything to one side, crack in 2 eggs and scramble, then mix through.',
+    'Season with 2 tbsp soy sauce and 1 tsp sesame oil. Top with the green scallion tops.']},
+  {title:'Fluffy Pancakes', servings:4, prep:10, cook:15, tags:['breakfast','baking','vegetarian'],
+   ingredients:`1 1/2 cups flour [main]
+2 tbsp sugar
+2 tsp baking powder
+1/4 tsp salt
+1 1/4 cups milk [main]
+1 egg [main]
+3 tbsp butter, melted
+1 tsp vanilla extract (optional)
+maple syrup, to serve`,
+   steps:[
+    'Whisk 1 1/2 cups flour, 2 tbsp sugar, 2 tsp baking powder and 1/4 tsp salt in a large bowl.',
+    'In a jug, whisk 1 1/4 cups milk, 1 egg, 3 tbsp melted butter and the vanilla.',
+    'Pour the wet ingredients into the dry and stir until just combined — a few lumps are fine. Rest for 5 minutes.',
+    'Cook ladlefuls in a lightly buttered pan over medium heat until bubbles form, then flip. Serve with maple syrup.']},
+  {title:'Guacamole', servings:4, prep:10, cook:0, tags:['mexican','vegan','no-cook','snack'],
+   ingredients:`3 ripe avocados [main]
+1 lime, juiced
+1/2 small red onion, finely diced
+1 jalapeño, seeded and minced
+1 tomato, diced
+2 tbsp chopped cilantro
+1/2 tsp salt`,
+   steps:[
+    'Mash 3 ripe avocados in a bowl with the lime juice, leaving some texture.',
+    'Fold in the onion, jalapeño, tomato and 2 tbsp chopped cilantro.',
+    'Season with 1/2 tsp salt, taste, and adjust with more lime or salt.']},
+  {title:'Shakshuka', servings:3, prep:10, cook:25, tags:['breakfast','vegetarian','one-pan'],
+   ingredients:`2 tbsp olive oil
+1 onion, diced
+1 red bell pepper, diced
+3 cloves garlic, minced
+1 tsp ground cumin
+1 tsp smoked paprika
+1/4 tsp cayenne (optional)
+1 (400 g) can chopped tomatoes [main]
+6 eggs [main]
+50 g feta, crumbled [garnish]
+1 small handful parsley, chopped [garnish]
+salt, to taste
+black pepper, to taste`,
+   steps:[
+    'Heat 2 tbsp olive oil in a deep frying pan and cook the onion and pepper for 8 minutes until soft.',
+    'Add the garlic, 1 tsp ground cumin, 1 tsp smoked paprika and the cayenne. Cook for 1 minute.',
+    'Pour in the tomatoes, season, and simmer for 8–10 minutes until thickened.',
+    'Make hollows in the sauce and crack in 6 eggs. Cover and cook gently for 6–8 minutes until the whites are set. Top with feta and parsley.']},
+  {title:'Lemon Garlic Salmon', servings:2, prep:5, cook:15, tags:['fish','quick','gluten-free'],
+   ingredients:`2 salmon fillets [main]
+2 tbsp butter
+3 cloves garlic, minced
+1 lemon, zested and juiced [main]
+1 tbsp chopped fresh parsley [garnish]
+salt, to taste
+black pepper, to taste`,
+   steps:[
+    'Pat 2 salmon fillets dry and season well with salt and pepper.',
+    'Melt 2 tbsp butter in a frying pan over medium-high heat. Cook the salmon skin-side down for 4 minutes, then flip and cook for 2–3 minutes more.',
+    'Lower the heat, add the garlic and lemon zest and cook for 30 seconds, then add the lemon juice and spoon the sauce over the fish.',
+    'Sprinkle with parsley and serve straight away.']},
+  {title:'Beef Chili', servings:6, prep:15, cook:60, tags:['beef','one-pot','freezer-friendly'],
+   ingredients:`1 tbsp vegetable oil
+500 g ground beef [main]
+1 onion, chopped
+1 green bell pepper, chopped
+3 cloves garlic, minced
+2 tbsp chili powder
+1 tsp ground cumin
+1 tsp dried oregano
+1 (400 g) can chopped tomatoes
+2 tbsp tomato paste
+2 (400 g) cans kidney beans, drained [main]
+250 ml beef stock
+1 bay leaf
+salt, to taste`,
+   steps:[
+    'Heat 1 tbsp vegetable oil in a large pot and brown 500 g ground beef, breaking it up. Spoon off excess fat.',
+    'Add the onion and pepper and cook for 5 minutes, then the garlic, 2 tbsp chili powder, 1 tsp ground cumin and 1 tsp dried oregano for 1 minute more.',
+    'Stir in the tomatoes, 2 tbsp tomato paste, beans, 250 ml beef stock and the bay leaf.',
+    'Simmer gently, partly covered, for 45 minutes, stirring now and then. Remove the bay leaf and season.']},
+  {title:'Red Lentil Soup', servings:4, prep:10, cook:30, tags:['soup','vegan','vegetarian'],
+   ingredients:`1 tbsp olive oil
+1 onion, chopped
+2 carrots, diced
+2 celery sticks, diced
+2 cloves garlic, minced
+200 g red lentils, rinsed [main]
+1 (400 g) can chopped tomatoes
+1.2 l vegetable stock [main]
+1 tsp ground cumin
+1/2 lemon, juiced
+salt, to taste
+black pepper, to taste`,
+   steps:[
+    'Warm 1 tbsp olive oil in a large pot and gently cook the onion, carrots and celery for 8 minutes.',
+    'Add the garlic and 1 tsp ground cumin and cook for 1 minute.',
+    'Add 200 g red lentils, the tomatoes and 1.2 l vegetable stock. Simmer for 20 minutes until the lentils have collapsed.',
+    'Blend partly or fully, then season and add the lemon juice.']},
+];
+function buildSeedRecipes(dict){
+  return SEED_RECIPES.map(s => {
+    const ingredients = parseIngredientText(s.ingredients, dict).map(cleanLine);
+    return {title: s.title, base_servings: s.servings, prep_min: s.prep, cook_min: s.cook, tags: s.tags,
+      source: '', notes: '', ingredients, steps: autoLinkSteps(s.steps, ingredients, dict),
+      created: new Date().toISOString(), last_cooked: null};
+  });
+}
+/* Strip editor-only fields before saving a line */
+function cleanLine(l){
+  return {qty: l.qty, qtyMax: l.qtyMax != null ? l.qtyMax : null, unit: l.unit || null, name: l.name, key: l.key || null,
+    form: l.form || 'any', note: l.note || '', role: l.role || 'supporting', optional: !!l.optional,
+    scale: l.scale || 'linear', section: l.section || ''};
+}
+/* LOGIC END */
+
+/* =========================================================
+   APP (DOM + storage)
+   ========================================================= */
+function esc(s){
+  return (s===null||s===undefined?'':String(s)).replace(/[&<>"']/g, c=>(
+    {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]
+  ));
+}
+function todayStr(){
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function fmtDate(d){
+  if(!d) return '';
+  return new Date(d+'T00:00:00').toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'});
+}
+function fmtMin(m){
+  m = +m || 0;
+  if(!m) return '';
+  if(m < 60) return m + ' min';
+  const h = Math.floor(m/60), r = m % 60;
+  return h + ' h' + (r ? ' ' + r + ' min' : '');
+}
+function qtyToText(q, qm){
+  if(q == null) return '';
+  const t = v => { const f = fracStr(v, [2,3,4,8]); return f.err < 1e-6 ? f.str : numStr(v); };
+  return qm != null ? `${t(q)}-${t(qm)}` : t(q);
+}
+function factorLabel(f){ const fr = fracStr(f, [2,3,4]); return '×' + (fr.err < 1e-6 ? fr.str : numStr(f)); }
+function capitalize(s){ s = String(s||''); return s.charAt(0).toUpperCase() + s.slice(1); }
+let toastTimer;
+function toast(msg){
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>el.classList.remove('show'), 2200);
+}
+function openModal(html){
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `<div class="modal-box">${html}</div>`;
+  document.body.appendChild(overlay);
+  const close = ()=>overlay.remove();
+  overlay.addEventListener('click', e=>{ if(e.target === overlay) close(); });
+  return {el: overlay, close};
+}
+function appConfirm(message, confirmLabel){
+  return new Promise(resolve=>{
+    const m = openModal(`<p>${esc(message)}</p>
+      <div class="modal-actions"><button type="button" class="btn ghost" data-no>Cancel</button>
+      <button type="button" class="btn danger" data-yes>${esc(confirmLabel || 'Confirm')}</button></div>`);
+    m.el.querySelector('[data-no]').onclick = ()=>{ m.close(); resolve(false); };
+    m.el.querySelector('[data-yes]').onclick = ()=>{ m.close(); resolve(true); };
+    m.el.addEventListener('click', e=>{ if(e.target === m.el) resolve(false); });
+  });
+}
+const notFound = msg => `<div class="page"><p class="empty">${esc(msg)} <a href="#/">Back to recipes</a></p></div>`;
+
+/* ---------- IndexedDB ---------- */
+const DB_NAME = 'recipe_bank_db';
+const DB_VERSION = 1;
+function openDB(){
+  return new Promise((resolve, reject)=>{
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
+    req.onupgradeneeded = (e)=>{
+      const db = e.target.result;
+      if(!db.objectStoreNames.contains('recipes')) db.createObjectStore('recipes', {keyPath:'id', autoIncrement:true});
+      if(!db.objectStoreNames.contains('ingredients')) db.createObjectStore('ingredients', {keyPath:'key'});
+      if(!db.objectStoreNames.contains('history')){
+        const hs = db.createObjectStore('history', {keyPath:'id', autoIncrement:true});
+        hs.createIndex('by_recipe', 'recipe_id');
+      }
+      if(!db.objectStoreNames.contains('settings')) db.createObjectStore('settings', {keyPath:'key'});
+    };
+    req.onsuccess = ()=>resolve(req.result);
+    req.onerror = ()=>reject(req.error);
+  });
+}
+let _dbPromise = null;
+function getDB(){ if(!_dbPromise) _dbPromise = openDB(); return _dbPromise; }
+function _req(store, mode, fn){
+  return getDB().then(db => new Promise((resolve, reject)=>{
+    const req = fn(db.transaction([store], mode).objectStore(store));
+    req.onsuccess = ()=>resolve(req.result);
+    req.onerror = ()=>reject(req.error);
+  }));
+}
+const getAll = store => _req(store, 'readonly', s => s.getAll());
+const getOne = (store, key) => _req(store, 'readonly', s => s.get(key));
+const getByIndex = (store, index, value) => _req(store, 'readonly', s => s.index(index).getAll(value));
+const addOne = (store, obj) => _req(store, 'readwrite', s => s.add(obj));
+const putOne = (store, obj) => _req(store, 'readwrite', s => s.put(obj));
+const deleteOne = (store, key) => _req(store, 'readwrite', s => s.delete(key));
+const clearStore = store => _req(store, 'readwrite', s => s.clear());
+async function putMany(store, list){
+  const db = await getDB();
+  return new Promise((resolve, reject)=>{
+    const tx = db.transaction([store], 'readwrite');
+    const os = tx.objectStore(store);
+    for(const o of list) os.put(o);
+    tx.oncomplete = ()=>resolve();
+    tx.onerror = ()=>reject(tx.error);
+  });
+}
+async function getSetting(key, fallback){ const r = await getOne('settings', key); return r ? r.value : fallback; }
+async function setSetting(key, value){ return putOne('settings', {key, value}); }
+
+let DICT = buildDict([]);
+async function loadDict(){ DICT = buildDict(await getAll('ingredients')); return DICT; }
+
+/* ---------- router ---------- */
+function currentRoute(){ return decodeURIComponent(location.hash.replace(/^#\/?/, '')); }
+function highlightTab(route){
+  const p = route.split('/');
+  let active = '';
+  if(route === 'r/new') active = 'r/new';
+  else if(p[0] === 'search') active = 'search';
+  else if(p[0] === 'ingredients' || p[0] === 'i') active = 'ingredients';
+  else if(p[0] === 'history') active = 'history';
+  else if(p[0] === 'backup') active = null;
+  document.querySelectorAll('.tab').forEach(a => a.classList.toggle('active', a.dataset.route === active));
+}
+async function render(){
+  const route = currentRoute();
+  highlightTab(route);
+  const app = document.getElementById('app');
+  const p = route.split('/').filter(Boolean);
+  try{
+    await loadDict();
+    if(p.length === 0) return await renderRecipeList(app);
+    if(p[0] === 'r'){
+      if(p[1] === 'new') return await renderRecipeForm(app, null);
+      if(p.length === 2) return await renderRecipeView(app, Number(p[1]));
+      if(p[2] === 'edit') return await renderRecipeForm(app, Number(p[1]));
+    }
+    if(p[0] === 'search') return await renderSearch(app);
+    if(p[0] === 'ingredients') return await renderIngredients(app);
+    if(p[0] === 'i') return await renderIngredientForm(app, p[1] === 'new' ? null : p[1]);
+    if(p[0] === 'history') return await renderHistory(app);
+    if(p[0] === 'backup') return await renderBackup(app);
+    app.innerHTML = notFound('Page not found.');
+  }catch(err){
+    console.error(err);
+    app.innerHTML = `<div class="page"><p class="empty">Something went wrong loading this page: ${esc(err.message)}</p></div>`;
+  }
+}
+window.addEventListener('hashchange', ()=>{ window.scrollTo(0,0); render(); });
+
+async function maybeSeed(){
+  const ing = await getAll('ingredients');
+  if(!ing.length) await putMany('ingredients', parseSeedIngredients(SEED_INGREDIENTS));
+  if(!(await getSetting('seeded_recipes', false))){
+    const recipes = await getAll('recipes');
+    if(!recipes.length){
+      const dict = await loadDict();
+      for(const r of buildSeedRecipes(dict)) await addOne('recipes', r);
+    }
+    await setSetting('seeded_recipes', true);
+  }
+}
+
+window.addEventListener('DOMContentLoaded', async ()=>{
+  const menuBtn = document.getElementById('menuToggle'), menu = document.getElementById('topMenu');
+  menuBtn.addEventListener('click', e=>{ e.stopPropagation(); menu.classList.toggle('open'); });
+  document.addEventListener('click', e=>{ if(!menu.contains(e.target) && e.target !== menuBtn) menu.classList.remove('open'); });
+  window.addEventListener('hashchange', ()=>menu.classList.remove('open'));
+  try{ await maybeSeed(); }catch(err){ console.error(err); toast('Could not load starter data: ' + err.message); }
+  render();
+});
+
+/* =========================================================
+   RECIPES — list
+   ========================================================= */
+const LIST = {q:'', tag:''};
+async function renderRecipeList(app){
+  const recipes = await getAll('recipes');
+  const tags = [...new Set(recipes.flatMap(r => r.tags || []))].sort();
+  if(LIST.tag && !tags.includes(LIST.tag)) LIST.tag = '';
+  app.innerHTML = `<div class="page">
+    <h1>Recipes <span class="count">${recipes.length}</span></h1>
+    <input type="search" id="q" placeholder="Search by name, tag or ingredient" value="${esc(LIST.q)}">
+    ${tags.length ? `<div class="chips" id="tagChips" style="margin:10px 0 14px">${['', ...tags].map(t =>
+      `<button class="chip ${LIST.tag === t ? 'on' : ''}" data-tag="${esc(t)}">${t ? esc(t) : 'All'}</button>`).join('')}</div>` : '<div style="height:14px"></div>'}
+    <ul class="plain" id="rlist"></ul>
+  </div>`;
+  const listEl = document.getElementById('rlist');
+  const draw = ()=>{
+    const words = normText(LIST.q).split(' ').filter(Boolean);
+    const list = recipes.filter(r=>{
+      if(LIST.tag && !(r.tags || []).includes(LIST.tag)) return false;
+      if(!words.length) return true;
+      const hay = normText([r.title, ...(r.tags || []),
+        ...r.ingredients.map(l => l.name + ' ' + (DICT.byKey[l.key] ? DICT.byKey[l.key].display : ''))].join(' '));
+      return words.every(w => hay.includes(w));
+    }).sort((a,b) => a.title.localeCompare(b.title));
+    listEl.innerHTML = list.length ? list.map(r=>{
+      const total = (+r.prep_min||0) + (+r.cook_min||0);
+      return `<li><a class="r-item" href="#/r/${r.id}"><strong>${esc(r.title)}</strong>
+        <span class="meta">Serves ${esc(r.base_servings)}${total ? ' · ' + fmtMin(total) : ''} · ${r.ingredients.length} ingredients${r.last_cooked ? ' · cooked ' + fmtDate(r.last_cooked) : ''}</span>
+        ${(r.tags||[]).length ? `<div class="tags">${r.tags.map(t => `<span class="tag">${esc(t)}</span>`).join('')}</div>` : ''}</a></li>`;
+    }).join('') : `<p class="empty">${recipes.length ? 'No recipes match.' : 'No recipes yet. <a href="#/r/new">Add your first one</a>.'}</p>`;
+  };
+  draw();
+  document.getElementById('q').addEventListener('input', e=>{ LIST.q = e.target.value; draw(); });
+  const chips = document.getElementById('tagChips');
+  if(chips) chips.addEventListener('click', e=>{
+    const b = e.target.closest('.chip'); if(!b) return;
+    LIST.tag = b.dataset.tag;
+    chips.querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c === b));
+    draw();
+  });
+}
+
+/* =========================================================
+   RECIPES — view (with scaling)
+   ========================================================= */
+let VIEW = {id:null, factor:1};
+const SCALE_CHIPS = [[0.25,'¼'],[1/3,'⅓'],[0.5,'½'],[1,'1×'],[2,'2×'],[3,'3×']];
+async function renderRecipeView(app, id){
+  const r = await getOne('recipes', id);
+  if(!r){ app.innerHTML = notFound('Recipe not found.'); return; }
+  if(VIEW.id !== id) VIEW = {id, factor:1};
+  let pref = await getSetting('units', 'entered');
+  let hist = await getByIndex('history', 'by_recipe', id);
+  hist.sort((a,b) => (b.date||'').localeCompare(a.date||'') || b.id - a.id);
+
+  const draw = ()=>{
+    const f = VIEW.factor;
+    const serves = r.base_servings * f;
+    const sections = [];
+    r.ingredients.forEach((line, i)=>{
+      const s = line.section || '';
+      let sec = sections.find(x => x.name === s);
+      if(!sec){ sec = {name:s, items:[]}; sections.push(sec); }
+      sec.items.push({line, i});
+    });
+    const scalable = r.ingredients.map((l,i)=>({l,i})).filter(x => x.l.qty != null && x.l.scale !== 'none');
+    const total = (+r.prep_min||0) + (+r.cook_min||0);
+    const isUrl = /^https?:\/\//i.test(r.source || '');
+    app.innerHTML = `<div class="page">
+      <h1 class="title">${esc(r.title)}</h1>
+      <span class="meta">${r.prep_min ? 'Prep ' + fmtMin(r.prep_min) : ''}${r.prep_min && r.cook_min ? ' · ' : ''}${r.cook_min ? 'Cook ' + fmtMin(r.cook_min) : ''}${total && (r.prep_min && r.cook_min) ? ' · Total ' + fmtMin(total) : ''}
+        ${r.source ? `<br>Source: ${isUrl ? `<a href="${esc(r.source)}" target="_blank" rel="noopener">${esc(r.source)}</a>` : esc(r.source)}` : ''}</span>
+      ${(r.tags||[]).length ? `<div class="tags">${r.tags.map(t => `<span class="tag">${esc(t)}</span>`).join('')}</div>` : ''}
+
+      <div class="card" style="margin-top:14px">
+        <div class="lbl">Scale</div>
+        <div class="chips" id="scaleChips">${SCALE_CHIPS.map(([v,l]) =>
+          `<button class="chip ${Math.abs(f - v) < 1e-6 ? 'on' : ''}" data-f="${v}">${l}</button>`).join('')}</div>
+        <div class="scale-row">
+          <span class="lbl" style="margin:0">Serves</span>
+          <div class="stepper">
+            <button class="icon-btn" id="servMinus">−</button>
+            <span class="num mono">${esc(fracStr(serves, [2,3,4]).err < 0.01 ? fracStr(serves, [2,3,4]).str : numStr(serves))}</span>
+            <button class="icon-btn" id="servPlus">+</button>
+          </div>
+          ${f !== 1 ? `<span class="pill">${factorLabel(f)} of the original (serves ${esc(r.base_servings)})</span>` : ''}
+        </div>
+        ${scalable.length ? `<details class="more" id="haveBox">
+          <summary>Scale from what I have</summary>
+          <div class="grid2" style="margin-top:10px">
+            <select id="haveLine">${scalable.map(x => `<option value="${x.i}">${esc(x.l.name)} (recipe: ${esc(formatRange(x.l.qty, x.l.qtyMax, x.l.unit, 'entered'))})</option>`).join('')}</select>
+            <div class="add-row"><input type="text" id="haveAmt" inputmode="decimal" placeholder="amount"><span class="meta" id="haveUnit" style="align-self:center;margin:0"></span></div>
+          </div>
+          <button class="btn small teal" id="haveApply" style="margin-top:8px">Scale to this</button>
+          <div class="hint">Enter the amount you have, in the same unit the recipe uses.</div>
+        </details>` : ''}
+        <div class="scale-row">
+          <span class="lbl" style="margin:0">Units</span>
+          <div class="chips" id="unitChips">${[['entered','As written'],['metric','Metric'],['us','US']].map(([v,l]) =>
+            `<button class="chip ${pref === v ? 'on' : ''}" data-u="${v}">${l}</button>`).join('')}</div>
+        </div>
+      </div>
+
+      <h2>Ingredients</h2>
+      ${sections.map(sec => `${sec.name ? `<div class="sec-name">${esc(sec.name)}</div>` : ''}
+        <ul class="plain ing-list">${sec.items.map(({line}) => {
+          const s = scaleLine(line, f, pref, DICT, r);
+          return `<li>${s.amount ? `<span class="amt">${esc(s.amount)}</span> ` : ''}${esc(s.name)}${s.note ? `<span class="note">, ${esc(s.note)}</span>` : ''}
+            ${line.optional ? ' <span class="tag">optional</span>' : ''}
+            ${s.warns.map(w => `<div class="warn">⚠ ${esc(w)}</div>`).join('')}</li>`;
+        }).join('')}</ul>`).join('')}
+
+      ${r.steps.length ? `<h2>Method</h2><ol class="steps">${r.steps.map(st =>
+        `<li>${stepSegments(st, r.ingredients, f, pref).map(sg => sg.t === 'amt' ? `<span class="amt">${esc(sg.v)}</span>` : esc(sg.v)).join('')}</li>`).join('')}</ol>` : ''}
+      ${r.notes ? `<h2>Notes</h2><div class="card" style="white-space:pre-wrap;line-height:1.5">${esc(r.notes)}</div>` : ''}
+
+      <h2>Cooked</h2>
+      <div class="card">
+        ${hist.length ? `<span class="meta" style="margin:0 0 8px">Cooked ${hist.length}× · last ${fmtDate(hist[0].date)}</span>
+          ${hist.slice(0,3).map(h => `<div class="kv"><span>${fmtDate(h.date)}${h.scale && h.scale !== 1 ? ' · ' + factorLabel(h.scale) : ''}${h.notes ? ` · <span class="note">${esc(h.notes)}</span>` : ''}</span><span style="color:var(--accent)">${'★'.repeat(h.rating||0)}</span></div>`).join('')}`
+          : '<span class="meta" style="margin:0 0 4px">Not cooked yet.</span>'}
+        <button class="btn block" id="cookedBtn" style="margin-top:10px">✓ I cooked this${f !== 1 ? ' (' + factorLabel(f) + ')' : ''}</button>
+      </div>
+
+      <div class="form-actions">
+        <a class="btn ghost" href="#/r/${r.id}/edit">Edit</a>
+        <button class="btn danger" id="delBtn">Delete</button>
+      </div>
+    </div>`;
+
+    document.getElementById('scaleChips').onclick = e=>{
+      const b = e.target.closest('.chip'); if(!b) return;
+      VIEW.factor = +b.dataset.f; draw();
+    };
+    const setServes = n => { VIEW.factor = Math.max(1, n) / r.base_servings; draw(); };
+    document.getElementById('servMinus').onclick = ()=>{
+      const cur = r.base_servings * VIEW.factor;
+      const next = Math.abs(cur - Math.round(cur)) < 1e-6 ? cur - 1 : Math.floor(cur);
+      if(next >= 1) setServes(next);
+    };
+    document.getElementById('servPlus').onclick = ()=>{
+      const cur = r.base_servings * VIEW.factor;
+      setServes(Math.abs(cur - Math.round(cur)) < 1e-6 ? cur + 1 : Math.ceil(cur));
+    };
+    document.getElementById('unitChips').onclick = async e=>{
+      const b = e.target.closest('.chip'); if(!b) return;
+      pref = b.dataset.u; await setSetting('units', pref); draw();
+    };
+    if(scalable.length){
+      const sel = document.getElementById('haveLine'), unitEl = document.getElementById('haveUnit');
+      const showUnit = ()=>{ const l = r.ingredients[+sel.value]; unitEl.textContent = l.unit ? UNITS[l.unit].many : ''; };
+      sel.onchange = showUnit; showUnit();
+      document.getElementById('haveApply').onclick = ()=>{
+        const l = r.ingredients[+sel.value];
+        const amt = parseNumber(document.getElementById('haveAmt').value);
+        if(!amt){ toast('Enter how much you have, e.g. 300 or 1 1/2'); return; }
+        VIEW.factor = amt / l.qty;
+        draw();
+        toast(`Scaled ${factorLabel(VIEW.factor)} to use ${amt}${l.unit ? ' ' + UNITS[l.unit].many : ''} ${l.name}`);
+      };
+    }
+    document.getElementById('cookedBtn').onclick = async ()=>{
+      const saved = await openCookModal({recipe: r, factor: VIEW.factor});
+      if(saved){ hist = await getByIndex('history', 'by_recipe', id); hist.sort((a,b) => (b.date||'').localeCompare(a.date||'') || b.id - a.id); draw(); }
+    };
+    document.getElementById('delBtn').onclick = async ()=>{
+      if(!(await appConfirm(`Delete "${r.title}"? Its cook history is kept but unlinked.`, 'Delete'))) return;
+      await deleteOne('recipes', r.id);
+      toast('Recipe deleted');
+      location.hash = '#/';
+    };
+  };
+  draw();
+}
+
+/* Cook log modal: used for "I cooked this" and for editing history entries. Resolves true if anything changed. */
+function openCookModal({recipe, entry, factor}){
+  return new Promise(resolve=>{
+    const e = entry ? {...entry} : {recipe_id: recipe ? recipe.id : null, date: todayStr(), scale: factor || 1, rating: 0, notes: ''};
+    const m = openModal(`
+      <h1 style="font-size:17px">${entry ? 'Edit entry' : 'Log a cook'}</h1>
+      <p class="meta" style="margin:-8px 0 14px">${esc(recipe ? recipe.title : 'Deleted recipe')}${e.scale && e.scale !== 1 ? ' · ' + factorLabel(e.scale) : ''}</p>
+      <div class="field"><label>Date</label><input type="date" id="cDate" value="${esc(e.date)}"></div>
+      <div class="field"><label>Rating</label><div class="stars" id="cStars">${[1,2,3,4,5].map(n => `<button type="button" data-n="${n}" class="${n <= e.rating ? 'on' : ''}">★</button>`).join('')}</div></div>
+      <div class="field"><label>Notes</label><textarea id="cNotes" placeholder="Needed more salt, kids loved it…">${esc(e.notes)}</textarea></div>
+      <div class="modal-actions">
+        ${entry ? '<button class="btn danger" data-del>Delete</button>' : '<button class="btn ghost" data-cancel>Cancel</button>'}
+        <button class="btn" data-save>Save</button>
+      </div>`);
+    const q = s => m.el.querySelector(s);
+    q('#cStars').onclick = ev=>{
+      const b = ev.target.closest('button'); if(!b) return;
+      e.rating = +b.dataset.n === e.rating ? 0 : +b.dataset.n;
+      q('#cStars').querySelectorAll('button').forEach(x => x.classList.toggle('on', +x.dataset.n <= e.rating));
+    };
+    const finish = v => { m.close(); resolve(v); };
+    m.el.addEventListener('click', ev=>{ if(ev.target === m.el) resolve(false); });
+    if(q('[data-cancel]')) q('[data-cancel]').onclick = ()=>finish(false);
+    if(q('[data-del]')) q('[data-del]').onclick = async ()=>{
+      await deleteOne('history', e.id);
+      await refreshLastCooked(e.recipe_id);
+      toast('Entry deleted'); finish(true);
+    };
+    q('[data-save]').onclick = async ()=>{
+      e.date = q('#cDate').value || todayStr();
+      e.notes = q('#cNotes').value.trim();
+      if(e.id) await putOne('history', e); else await addOne('history', e);
+      await refreshLastCooked(e.recipe_id);
+      toast('Saved to your cook history'); finish(true);
+    };
+  });
+}
+async function refreshLastCooked(recipeId){
+  if(recipeId == null) return;
+  const r = await getOne('recipes', recipeId);
+  if(!r) return;
+  const h = await getByIndex('history', 'by_recipe', recipeId);
+  r.last_cooked = h.map(x => x.date).sort().pop() || null;
+  await putOne('recipes', r);
+}
+
+/* =========================================================
+   RECIPES — add / edit
+   ========================================================= */
+const ROLE_LABELS = {main:'Main', supporting:'Supporting', garnish:'Garnish'};
+const SCALE_LABELS = {linear:'Scales normally', taste:'To taste', none:"Don't scale"};
+async function renderRecipeForm(app, id){
+  let r;
+  if(id != null){
+    r = await getOne('recipes', id);
+    if(!r){ app.innerHTML = notFound('Recipe not found.'); return; }
+    r = JSON.parse(JSON.stringify(r));
+  } else r = {title:'', base_servings:4, tags:[], prep_min:null, cook_min:null, source:'', notes:'', ingredients:[], steps:[]};
+  const lines = r.ingredients.map(l => ({...l, candidates: [], createNew: false}));
+  const allOpts = DICT.list.map(it => ({key: it.key, label: pathLabel(DICT, it.key)})).sort((a,b) => a.label.localeCompare(b.label));
+
+  app.innerHTML = `<div class="page">
+    <h1>${id != null ? 'Edit recipe' : 'Add a recipe'}</h1>
+    <div class="field"><label>Title</label><input type="text" id="fTitle" value="${esc(r.title)}" placeholder="e.g. Weeknight chili"></div>
+    <div class="grid3">
+      <div class="field"><label>Serves</label><input type="number" id="fServ" min="1" value="${esc(r.base_servings)}"></div>
+      <div class="field"><label>Prep (min)</label><input type="number" id="fPrep" min="0" value="${esc(r.prep_min ?? '')}"></div>
+      <div class="field"><label>Cook (min)</label><input type="number" id="fCook" min="0" value="${esc(r.cook_min ?? '')}"></div>
+    </div>
+    <div class="field"><label>Tags</label><input type="text" id="fTags" value="${esc((r.tags||[]).join(', '))}" placeholder="vegetarian, quick, baking"><div class="hint">Comma-separated. Tag a recipe "baking" if exact amounts matter.</div></div>
+    <div class="field"><label>Source</label><input type="text" id="fSource" value="${esc(r.source)}" placeholder="Book, website or person"></div>
+
+    <h2>Ingredients</h2>
+    <div class="field">
+      <textarea id="fPaste" placeholder="Paste ingredient lines, one per line:
+2 cups flour, sifted
+1 (400 g) can chopped tomatoes [main]
+salt and pepper to taste"></textarea>
+      <div class="hint">Amount, unit, ingredient, then notes after a comma. Lines ending in ":" start a section (e.g. "For the sauce:"). Add [main] or [garnish] to mark importance — main ingredients count most in search.</div>
+      <button class="btn small teal" id="parseBtn" style="margin-top:8px">Add these lines</button>
+    </div>
+    <div id="lines"></div>
+    <button class="btn small ghost" id="addLine">+ Add a blank line</button>
+
+    <h2>Method</h2>
+    <div class="field">
+      <textarea id="fSteps" style="min-height:150px" placeholder="One step per line">${esc(r.steps.join('\n'))}</textarea>
+      <div class="hint">Amounts written in a step (like "add 2 tbsp olive oil") are linked to the ingredient list when you save, so they scale too. Linked amounts show as {#} — the number is the ingredient's line number.</div>
+      <button class="btn small ghost" id="linkBtn" style="margin-top:8px">Link amounts now</button>
+    </div>
+    <div class="field"><label>Notes</label><textarea id="fNotes">${esc(r.notes)}</textarea></div>
+    <div class="form-actions">
+      <button class="btn" id="saveBtn" style="flex:1">Save recipe</button>
+      <a class="btn ghost" href="${id != null ? '#/r/' + id : '#/'}">Cancel</a>
+    </div>
+  </div>`;
+
+  const linesEl = document.getElementById('lines');
+  const stepsEl = document.getElementById('fSteps');
+
+  function keyOptions(line){
+    const out = [];
+    if(!line.key && !line.createNew) out.push(`<option value="" selected disabled>Choose which one…</option>`);
+    if(line.candidates && line.candidates.length > 1)
+      out.push(`<optgroup label="Did you mean">${line.candidates.map(k => `<option value="${esc(k)}" ${line.key === k ? 'selected' : ''}>${esc(pathLabel(DICT, k))}</option>`).join('')}</optgroup>`);
+    const nm = coreName(line.name) || line.name;
+    out.push(`<option value="__new__" ${line.createNew ? 'selected' : ''}>+ New ingredient: "${esc(nm)}"</option>`);
+    out.push(`<optgroup label="All ingredients">${allOpts.map(o => `<option value="${esc(o.key)}" ${line.key === o.key ? 'selected' : ''}>${esc(o.label)}</option>`).join('')}</optgroup>`);
+    return out.join('');
+  }
+  function lineHtml(line, i){
+    const ing = line.key ? DICT.byKey[line.key] : null;
+    const forms = ing && ing.forms && ing.forms.length ? ing.forms : FORMS;
+    let status;
+    if(ing) status = `<div class="status ok">✓ ${esc(pathLabel(DICT, ing.key))}</div>`;
+    else if(line.createNew) status = `<div class="status new">+ Will be added to your ingredient dictionary</div>`;
+    else status = `<div class="status bad">⚠ "${esc(line.name)}" could mean several things — pick one</div>`;
+    return `<div class="line-card" data-i="${i}">
+      <div class="line-top">
+        <span class="line-idx">#${i}</span>
+        <input type="text" class="qty" value="${esc(qtyToText(line.qty, line.qtyMax))}" placeholder="qty" inputmode="decimal">
+        <select class="unit"><option value="">—</option>${UNIT_KEYS.map(k => `<option value="${k}" ${line.unit === k ? 'selected' : ''}>${UNITS[k].one}</option>`).join('')}</select>
+        <input type="text" class="lname" value="${esc(line.name)}" placeholder="ingredient">
+        <button class="icon-btn del" title="Remove">✕</button>
+      </div>
+      <div class="line-grid">
+        <label class="full">Ingredient<select class="lkey">${keyOptions(line)}</select></label>
+        <label>Form<select class="lform"><option value="any">any</option>${forms.map(fm => `<option value="${fm}" ${line.form === fm ? 'selected' : ''}>${fm}</option>`).join('')}</select></label>
+        <label>Importance<select class="lrole">${Object.entries(ROLE_LABELS).map(([v,l]) => `<option value="${v}" ${line.role === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label>
+        <label>Note<input type="text" class="lnote" value="${esc(line.note)}" placeholder="diced, to serve…"></label>
+        <label>Scaling<select class="lscale">${Object.entries(SCALE_LABELS).map(([v,l]) => `<option value="${v}" ${line.scale === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label>
+        <label>Section<input type="text" class="lsection" value="${esc(line.section)}" placeholder="optional"></label>
+        <label class="chk" style="align-self:end;padding-bottom:8px"><input type="checkbox" class="lopt" ${line.optional ? 'checked' : ''}> Optional</label>
+      </div>
+      ${status}
+    </div>`;
+  }
+  const drawLines = ()=>{
+    linesEl.innerHTML = lines.length ? lines.map(lineHtml).join('') : '<p class="meta" style="margin-bottom:10px">No ingredients yet — paste some above.</p>';
+  };
+  const redrawLine = i => {
+    const card = linesEl.querySelector(`.line-card[data-i="${i}"]`);
+    if(card) card.outerHTML = lineHtml(lines[i], i);
+  };
+  drawLines();
+
+  linesEl.addEventListener('change', e=>{
+    const card = e.target.closest('.line-card'); if(!card) return;
+    const i = +card.dataset.i, line = lines[i], t = e.target;
+    if(t.classList.contains('qty')){
+      const p = parseQtyString(t.value);
+      t.classList.toggle('bad', !p);
+      if(p){ line.qty = p.qty; line.qtyMax = p.qtyMax; }
+    }
+    else if(t.classList.contains('unit')) line.unit = t.value || null;
+    else if(t.classList.contains('lname')){
+      line.name = t.value.trim();
+      const rr = resolveName(DICT, line.name);
+      line.key = rr.key; line.candidates = rr.candidates;
+      line.createNew = !rr.key && !rr.candidates.length;
+      line.form = rr.form || 'any';
+      if(rr.key && DICT.byKey[rr.key].default_scale && line.scale === 'linear') line.scale = DICT.byKey[rr.key].default_scale;
+      redrawLine(i);
+    }
+    else if(t.classList.contains('lkey')){
+      const v = t.value;
+      if(v === '__new__'){ line.key = null; line.createNew = true; }
+      else{
+        line.key = v; line.createNew = false;
+        const fs = DICT.byKey[v].forms || [];
+        if(line.form !== 'any' && fs.length && !fs.includes(line.form)) line.form = 'any';
+        if(DICT.byKey[v].default_scale && line.scale === 'linear') line.scale = DICT.byKey[v].default_scale;
+      }
+      redrawLine(i);
+    }
+    else if(t.classList.contains('lform')) line.form = t.value;
+    else if(t.classList.contains('lrole')) line.role = t.value;
+    else if(t.classList.contains('lscale')) line.scale = t.value;
+    else if(t.classList.contains('lnote')) line.note = t.value.trim();
+    else if(t.classList.contains('lsection')) line.section = t.value.trim().toLowerCase();
+    else if(t.classList.contains('lopt')) line.optional = t.checked;
+  });
+  linesEl.addEventListener('click', e=>{
+    const b = e.target.closest('.del'); if(!b) return;
+    const i = +b.closest('.line-card').dataset.i;
+    const removed = lines[i];
+    lines.splice(i, 1);
+    // keep {n} tokens in the method pointing at the right lines
+    stepsEl.value = stepsEl.value.replace(/\{(\d+)\}/g, (m0, n)=>{
+      n = +n;
+      if(n === i) return removed.qty != null ? formatRange(removed.qty, removed.qtyMax, removed.unit, 'entered') : '';
+      return n > i ? `{${n-1}}` : m0;
+    });
+    drawLines();
+  });
+  document.getElementById('parseBtn').onclick = ()=>{
+    const ta = document.getElementById('fPaste');
+    const parsed = parseIngredientText(ta.value, DICT);
+    if(!parsed.length){ toast('Nothing to add — paste one ingredient per line'); return; }
+    for(const l of parsed){ l.createNew = !l.key && !l.candidates.length; lines.push(l); }
+    ta.value = '';
+    drawLines();
+    const unsure = parsed.filter(l => !l.key).length;
+    toast(`Added ${parsed.length} line${parsed.length > 1 ? 's' : ''}${unsure ? ` — check ${unsure} not yet in the dictionary` : ''}`);
+  };
+  document.getElementById('addLine').onclick = ()=>{
+    lines.push({qty:null, qtyMax:null, unit:null, name:'', key:null, candidates:[], createNew:true, form:'any', note:'', role:'supporting', optional:false, scale:'linear', section:''});
+    drawLines();
+    const cards = linesEl.querySelectorAll('.line-card');
+    cards[cards.length-1].querySelector('.lname').focus();
+  };
+  const currentSteps = ()=> stepsEl.value.split('\n').map(s => s.trim()).filter(Boolean);
+  document.getElementById('linkBtn').onclick = ()=>{
+    const before = stepsEl.value;
+    stepsEl.value = autoLinkSteps(currentSteps(), lines, DICT).join('\n');
+    const n = (stepsEl.value.match(/\{\d+\}/g) || []).length - (before.match(/\{\d+\}/g) || []).length;
+    toast(n > 0 ? `Linked ${n} amount${n > 1 ? 's' : ''}` : 'No new amounts to link');
+  };
+
+  document.getElementById('saveBtn').onclick = async ()=>{
+    const title = document.getElementById('fTitle').value.trim();
+    if(!title){ toast('Give the recipe a title'); return; }
+    const named = lines.filter(l => l.name);
+    if(!named.length){ toast('Add at least one ingredient'); return; }
+    const badQty = linesEl.querySelector('input.qty.bad');
+    if(badQty){ toast('Fix the highlighted amount (e.g. 2, 1 1/2, ½, 2-3)'); return; }
+    const amb = lines.findIndex(l => l.name && !l.key && !l.createNew);
+    if(amb >= 0){ toast(`Pick which ingredient line #${amb} means`); return; }
+    // create new dictionary entries
+    let created = 0;
+    for(const l of lines){
+      if(!l.name || l.key || !l.createNew) continue;
+      const nm = coreName(l.name) || normText(l.name);
+      const key = slugify(nm);
+      if(!key) continue;
+      if(!DICT.byKey[key]){
+        await putOne('ingredients', {key, display: capitalize(nm), parent:null, aliases:[], forms:[], staple:false, whole_only:false,
+          aisle:'other', related:[], sibling_score:0.5, form_overrides:{}, form_ratios:{}, default_scale:'linear'});
+        created++;
+        await loadDict();
+      }
+      l.key = key; l.createNew = false;
+    }
+    const keep = lines.filter(l => l.name);
+    // blank lines are dropped, so renumber {n} tokens to the kept lines
+    const newIndex = {};
+    let k = 0;
+    lines.forEach((l, i)=>{ if(l.name) newIndex[i] = k++; });
+    const stepText = stepsEl.value.replace(/\{(\d+)\}/g, (m0, n)=> newIndex[+n] != null ? `{${newIndex[+n]}}` : '');
+    const ingredients = keep.map(cleanLine);
+    const steps = autoLinkSteps(stepText.split('\n').map(s => s.trim()).filter(Boolean), ingredients, DICT);
+    const num = v => v === '' || v == null ? null : Math.max(0, +v);
+    const rec = {
+      ...r,
+      title,
+      base_servings: Math.max(1, +document.getElementById('fServ').value || 1),
+      prep_min: num(document.getElementById('fPrep').value),
+      cook_min: num(document.getElementById('fCook').value),
+      tags: document.getElementById('fTags').value.split(',').map(s => s.trim().toLowerCase()).filter(Boolean),
+      source: document.getElementById('fSource').value.trim(),
+      notes: document.getElementById('fNotes').value.trim(),
+      ingredients, steps,
+    };
+    if(id == null){ rec.created = new Date().toISOString(); rec.last_cooked = null; delete rec.id; }
+    const newId = id != null ? (await putOne('recipes', rec), id) : await addOne('recipes', rec);
+    toast(`Recipe saved${created ? ` · ${created} new ingredient${created > 1 ? 's' : ''} added` : ''}`);
+    location.hash = `#/r/${newId}`;
+  };
+}
+
+/* =========================================================
+   SEARCH — what can I make?
+   ========================================================= */
+const SEARCH = {maxMissing:'', tag:'', maxTime:'', sort:'coverage'};
+async function renderSearch(app){
+  const recipes = await getAll('recipes');
+  let haves = (await getSetting('search_haves', [])).filter(h => DICT.byKey[h.key]);
+  const tags = [...new Set(recipes.flatMap(r => r.tags || []))].sort();
+  const names = new Set();
+  for(const it of DICT.list){ names.add(it.display); for(const a of (it.aliases||[])) names.add(a); }
+
+  app.innerHTML = `<div class="page">
+    <h1>What can I make?</h1>
+    <div class="add-row">
+      <input type="text" id="sIn" list="ingNames" placeholder="Add an ingredient you have" autocomplete="off">
+      <button class="btn" id="sAdd">Add</button>
+    </div>
+    <datalist id="ingNames">${[...names].sort().map(n => `<option value="${esc(n)}">`).join('')}</datalist>
+    <div id="sPick"></div>
+    <div class="chips" id="haves" style="margin:12px 0 6px"></div>
+    <div class="hint" id="haveHint"></div>
+    <div class="card" style="margin-top:12px">
+      <div class="grid2">
+        <div><div class="lbl">Missing at most</div><select id="fMiss">${[['','Any'],['0','Nothing'],['1','1 item'],['2','2 items'],['3','3 items']].map(([v,l]) => `<option value="${v}" ${SEARCH.maxMissing === v ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
+        <div><div class="lbl">Sort by</div><select id="fSort"><option value="coverage" ${SEARCH.sort === 'coverage' ? 'selected' : ''}>Best match</option><option value="uses" ${SEARCH.sort === 'uses' ? 'selected' : ''}>Uses most of my items</option></select></div>
+        <div><div class="lbl">Tag</div><select id="fTag"><option value="">Any</option>${tags.map(t => `<option ${SEARCH.tag === t ? 'selected' : ''}>${esc(t)}</option>`).join('')}</select></div>
+        <div><div class="lbl">Total time</div><select id="fTime">${[['','Any'],['15','≤ 15 min'],['30','≤ 30 min'],['45','≤ 45 min'],['60','≤ 1 h'],['90','≤ 1½ h']].map(([v,l]) => `<option value="${v}" ${SEARCH.maxTime === v ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
+      </div>
+    </div>
+    <ul class="plain" id="results"></ul>
+  </div>`;
+
+  const havesEl = document.getElementById('haves'), pickEl = document.getElementById('sPick'), resEl = document.getElementById('results');
+  const save = ()=> setSetting('search_haves', haves);
+  const drawHaves = ()=>{
+    havesEl.innerHTML = haves.map((h, i) => {
+      const it = DICT.byKey[h.key];
+      const forms = it.forms || [];
+      return `<span class="have" data-i="${i}">${esc(it.display)}
+        ${forms.length ? `<select class="hform"><option value="any">any form</option>${forms.map(f => `<option ${h.form === f ? 'selected' : ''}>${f}</option>`).join('')}</select>` : ''}
+        <button class="hdel" title="Remove">✕</button></span>`;
+    }).join('') + (haves.length > 1 ? `<button class="chip" id="clearHaves">Clear all</button>` : '');
+    const staples = DICT.list.filter(it => it.staple).map(it => it.display);
+    document.getElementById('haveHint').textContent = haves.length
+      ? `Always assumed: ${staples.join(', ')}. Change staples in Ingredients.`
+      : 'Add what\'s in your fridge and cupboard. Recipes are scored by how much of them you can cover — main ingredients count most.';
+  };
+  const drawResults = ()=>{
+    const res = searchRecipes(recipes, haves, DICT, {
+      maxMissing: SEARCH.maxMissing === '' ? null : +SEARCH.maxMissing,
+      tag: SEARCH.tag, maxTime: SEARCH.maxTime ? +SEARCH.maxTime : 0, sort: SEARCH.sort,
+    });
+    if(!haves.length){ resEl.innerHTML = ''; return; }
+    if(!res.length){
+      const hidden = searchRecipes(recipes, haves, DICT, {}).length;
+      resEl.innerHTML = `<p class="empty">${hidden ? `The filters are hiding ${hidden} recipe${hidden > 1 ? 's' : ''} that use your ingredients — try loosening them.` : 'None of your recipes use these ingredients yet.'}</p>`;
+      return;
+    }
+    resEl.innerHTML = `<p class="meta" style="margin:4px 0 10px">${res.length} recipe${res.length > 1 ? 's' : ''}</p>` + res.slice(0, 40).map(x => {
+      const pct = Math.round(x.coverage * 100);
+      const cls = pct >= 80 ? 'hi' : pct >= 50 ? 'mid' : 'lo';
+      const total = (+x.recipe.prep_min||0) + (+x.recipe.cook_min||0);
+      return `<li class="res">
+        <div class="plate ${cls}">${pct}%</div>
+        <div class="res-body">
+          <a href="#/r/${x.recipe.id}"><strong>${esc(x.recipe.title)}</strong></a>
+          <span class="meta">${x.exact.length} matched${total ? ' · ' + fmtMin(total) : ''} · uses ${x.usedCount} of your ${haves.length} item${haves.length > 1 ? 's' : ''}</span>
+          ${x.missing.length ? `<span class="meta miss">Missing: ${x.missing.map(esc).join(', ')}</span>` : `<span class="meta sub">Nothing missing</span>`}
+          ${x.subs.map(s => `<span class="meta sub">↺ ${esc(s.have)} for ${esc(s.need)} (${Math.round(s.score*100)}%)${s.hint ? ' — ' + esc(s.hint) : ''}</span>`).join('')}
+        </div></li>`;
+    }).join('');
+  };
+  const addHave = (key, form)=>{
+    form = form || 'any';
+    if(haves.some(h => h.key === key && (h.form || 'any') === form)){ toast(`${DICT.byKey[key].display} is already on your list`); return; }
+    haves.push({key, form});
+    save(); drawHaves(); drawResults();
+  };
+  const tryAdd = ()=>{
+    const inp = document.getElementById('sIn');
+    const txt = inp.value.trim();
+    pickEl.innerHTML = '';
+    if(!txt) return;
+    const r = resolveName(DICT, txt);
+    if(r.key){ addHave(r.key, r.form); inp.value = ''; return; }
+    if(r.candidates.length > 1){
+      pickEl.innerHTML = `<div class="card" style="margin-top:10px"><div class="lbl">Which "${esc(txt)}"?</div><div class="chips">${r.candidates.map(k => `<button class="chip" data-k="${esc(k)}" data-f="${esc(r.forms[0] || '')}">${esc(pathLabel(DICT, k))}</button>`).join('')}</div></div>`;
+      return;
+    }
+    toast(`"${txt}" isn't in your ingredient dictionary yet — add it under Ingredients`);
+  };
+  pickEl.onclick = e=>{
+    const b = e.target.closest('.chip'); if(!b) return;
+    const it = DICT.byKey[b.dataset.k];
+    addHave(b.dataset.k, (it.forms||[]).includes(b.dataset.f) ? b.dataset.f : 'any');
+    pickEl.innerHTML = ''; document.getElementById('sIn').value = '';
+  };
+  document.getElementById('sAdd').onclick = tryAdd;
+  document.getElementById('sIn').addEventListener('keydown', e=>{ if(e.key === 'Enter'){ e.preventDefault(); tryAdd(); } });
+  havesEl.addEventListener('change', e=>{
+    if(!e.target.classList.contains('hform')) return;
+    haves[+e.target.closest('.have').dataset.i].form = e.target.value;
+    save(); drawResults();
+  });
+  havesEl.addEventListener('click', e=>{
+    if(e.target.id === 'clearHaves'){ haves = []; save(); drawHaves(); drawResults(); return; }
+    const b = e.target.closest('.hdel'); if(!b) return;
+    haves.splice(+b.closest('.have').dataset.i, 1);
+    save(); drawHaves(); drawResults();
+  });
+  const bindFilter = (id, field) => document.getElementById(id).onchange = e=>{ SEARCH[field] = e.target.value; drawResults(); };
+  bindFilter('fMiss', 'maxMissing'); bindFilter('fSort', 'sort'); bindFilter('fTag', 'tag'); bindFilter('fTime', 'maxTime');
+  drawHaves(); drawResults();
+}
+
+/* =========================================================
+   INGREDIENTS — dictionary
+   ========================================================= */
+let ING_Q = '';
+const AISLES = ['produce','meat','seafood','dairy','bakery','grains','pantry','baking','spices','frozen','other'];
+async function renderIngredients(app){
+  const recipes = await getAll('recipes');
+  const usage = {};
+  for(const r of recipes) for(const l of r.ingredients) if(l.key) usage[l.key] = (usage[l.key] || 0) + 1;
+  app.innerHTML = `<div class="page">
+    <h1>Ingredients <span class="count">${DICT.list.length}</span></h1>
+    <div class="add-row" style="margin-bottom:14px">
+      <input type="search" id="iq" placeholder="Find an ingredient" value="${esc(ING_Q)}">
+      <a class="btn" href="#/i/new">+ New</a>
+    </div>
+    <div class="hint" style="margin:-4px 0 12px">Sub-types sit under their parent (Chili pepper › Jalapeño). Forms like canned or dried are set on each ingredient, not in the tree.</div>
+    <div id="tree"></div>
+  </div>`;
+  const treeEl = document.getElementById('tree');
+  const badges = it => `<span class="tags">${it.staple ? '<span class="tag green">staple</span>' : ''}${(it.forms||[]).length ? `<span class="tag">${it.forms.length} forms</span>` : ''}${usage[it.key] ? `<span class="tag accent">${usage[it.key]} recipe${usage[it.key] > 1 ? 's' : ''}</span>` : ''}</span>`;
+  const nodeHtml = key => {
+    const it = DICT.byKey[key];
+    const kids = DICT.children[key] || [];
+    return `<li><div class="node"><a href="#/i/${encodeURIComponent(key)}">${esc(it.display)}</a>${badges(it)}</div>${kids.length ? `<ul>${kids.map(nodeHtml).join('')}</ul>` : ''}</li>`;
+  };
+  const draw = ()=>{
+    const q = normText(ING_Q);
+    if(!q){ treeEl.innerHTML = `<ul class="tree">${(DICT.children[''] || []).map(nodeHtml).join('')}</ul>`; return; }
+    const hits = DICT.list.filter(it => normText([it.display, it.key, ...(it.aliases||[])].join(' ')).includes(q));
+    treeEl.innerHTML = hits.length ? `<ul class="tree">${hits.map(it => `<li><div class="node"><a href="#/i/${encodeURIComponent(it.key)}">${esc(pathLabel(DICT, it.key))}</a>${badges(it)}</div></li>`).join('')}</ul>`
+      : `<p class="empty">No match. <a href="#/i/new">Add "${esc(ING_Q)}"</a></p>`;
+  };
+  draw();
+  document.getElementById('iq').addEventListener('input', e=>{ ING_Q = e.target.value; draw(); });
+}
+
+function pairsToText(obj){ return Object.entries(obj || {}).map(([k,v]) => `${k}=${v}`).join('\n'); }
+function textToPairs(text){
+  const out = {};
+  for(const raw of String(text||'').split('\n')){
+    const t = raw.trim(); if(!t) continue;
+    const m = t.match(/^([a-z-]+)\s*>\s*([a-z-]+)\s*=\s*([\d.]+)$/i);
+    if(!m) throw new Error(`Couldn't read "${t}" — use the pattern fresh>dried=0.5`);
+    out[`${m[1].toLowerCase()}>${m[2].toLowerCase()}`] = +m[3];
+  }
+  return out;
+}
+async function renderIngredientForm(app, key){
+  const isNew = key == null;
+  const src = isNew ? {key:'', display:'', parent:null, aliases:[], forms:[], staple:false, whole_only:false, aisle:'other', related:[],
+    sibling_score:0.5, form_overrides:{}, form_ratios:{}, default_scale:'linear'} : DICT.byKey[key];
+  if(!src){ app.innerHTML = notFound('Ingredient not found.'); return; }
+  const it = JSON.parse(JSON.stringify(src));
+  const recipes = await getAll('recipes');
+  const usedIn = isNew ? [] : recipes.filter(r => r.ingredients.some(l => l.key === key));
+  const kids = isNew ? [] : (DICT.children[key] || []);
+  const blocked = isNew ? new Set() : new Set([key, ...descendants(DICT, key)]);
+  const parentOpts = DICT.list.filter(x => !blocked.has(x.key)).map(x => ({key: x.key, label: pathLabel(DICT, x.key)})).sort((a,b) => a.label.localeCompare(b.label));
+  const formsOn = new Set(it.forms || []);
+
+  app.innerHTML = `<div class="page">
+    <h1>${isNew ? 'New ingredient' : esc(it.display)}</h1>
+    ${!isNew ? `<p class="meta" style="margin:-8px 0 14px">${esc(pathLabel(DICT, key))}</p>` : ''}
+    <div class="field"><label>Name</label><input type="text" id="gName" value="${esc(it.display)}" placeholder="e.g. Habanero"></div>
+    <div class="field"><label>Kind of… (parent)</label>
+      <select id="gParent"><option value="">— Nothing (top level) —</option>${parentOpts.map(o => `<option value="${esc(o.key)}" ${it.parent === o.key ? 'selected' : ''}>${esc(o.label)}</option>`).join('')}</select>
+      <div class="hint">Put it under the general ingredient it's a type of. A recipe asking for the parent is satisfied by any of its sub-types.</div></div>
+    <div class="field"><label>Other names</label><input type="text" id="gAliases" value="${esc((it.aliases||[]).join(', '))}" placeholder="scallion, spring onion"><div class="hint">Comma-separated. Used when reading pasted recipes and in search.</div></div>
+    <div class="field"><label>Forms it comes in</label>
+      <div class="chips" id="gForms">${FORMS.map(f => `<button type="button" class="chip ${formsOn.has(f) ? 'on' : ''}" data-f="${f}">${f}</button>`).join('')}</div>
+      <div class="hint">Leave all off if the form doesn't matter. Juice, zest, yolk and white are parts — they never substitute for each other.</div></div>
+    <div class="grid2">
+      <div class="field"><label>Aisle</label><select id="gAisle">${AISLES.map(a => `<option ${it.aisle === a ? 'selected' : ''}>${a}</option>`).join('')}</select></div>
+      <div class="field"><label>Default scaling</label><select id="gScale">${Object.entries(SCALE_LABELS).map(([v,l]) => `<option value="${v}" ${it.default_scale === v ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
+    </div>
+    <div class="field"><label class="chk"><input type="checkbox" id="gStaple" ${it.staple ? 'checked' : ''}> Staple — always in my kitchen</label><div class="hint">Staples don't count against a recipe in search. Sub-types inherit this.</div></div>
+    <div class="field"><label class="chk"><input type="checkbox" id="gWhole" ${it.whole_only ? 'checked' : ''}> Comes in whole units</label><div class="hint">Like eggs: warns when scaling gives an awkward fraction.</div></div>
+    <div class="field"><label>Related ingredients</label><input type="text" id="gRelated" value="${esc((it.related||[]).map(k => DICT.byKey[k] ? DICT.byKey[k].display : k).join(', '))}" placeholder="lime">
+      <div class="hint">Close substitutes outside its own branch (lemon ↔ lime). They count as a 50% match.</div></div>
+    <div class="field"><label>Sub-types substitute for each other</label>
+      <input type="number" id="gSib" min="0" max="1" step="0.05" value="${esc(it.sibling_score ?? 0.5)}">
+      <div class="hint">Only matters if this ingredient has sub-types. 0.8 = swap freely (pasta shapes) · 0.25 = poorly (different herbs).</div></div>
+    <details class="more"><summary>Advanced: form substitution</summary>
+      <div class="field" style="margin-top:10px"><label>Form match scores</label><textarea id="gOv" placeholder="fresh>dried=0.8">${esc(pairsToText(it.form_overrides))}</textarea>
+        <div class="hint">One per line. Overrides the defaults (e.g. fresh↔canned 0.7) for this ingredient and its sub-types.</div></div>
+      <div class="field"><label>Form amount ratios</label><textarea id="gRatio" placeholder="fresh>dried=0.33">${esc(pairsToText(it.form_ratios))}</textarea>
+        <div class="hint">"fresh>dried=0.33" means: replacing fresh with dried, use a third as much. Shown as a tip in search.</div></div>
+    </details>
+    <div class="form-actions">
+      <button class="btn" id="gSave" style="flex:1">${isNew ? 'Add ingredient' : 'Save'}</button>
+      <a class="btn ghost" href="#/ingredients">Cancel</a>
+    </div>
+    ${isNew ? '' : `
+      <hr class="rule">
+      ${kids.length ? `<h2>Sub-types</h2><div class="chips">${kids.map(k => `<a class="chip" href="#/i/${encodeURIComponent(k)}">${esc(DICT.byKey[k].display)}</a>`).join('')}</div>` : ''}
+      <h2>Used in</h2>
+      ${usedIn.length ? `<ul class="plain">${usedIn.map(r => `<li class="kv"><a href="#/r/${r.id}">${esc(r.title)}</a></li>`).join('')}</ul>` : '<p class="meta">Not used in any recipe yet.</p>'}
+      <h2>Merge</h2>
+      <p class="meta" style="margin-bottom:8px">Same ingredient under two names? Merge this one into the other: recipes are updated, its names become aliases, and its sub-types move across.</p>
+      <div class="add-row"><select id="gMergeTo"><option value="">Merge into…</option>${DICT.list.filter(x => x.key !== key).map(x => `<option value="${esc(x.key)}">${esc(pathLabel(DICT, x.key))}</option>`).join('')}</select>
+        <button class="btn ghost" id="gMerge">Merge</button></div>
+      <div class="form-actions"><button class="btn danger" id="gDel">Delete ingredient</button></div>`}
+  </div>`;
+
+  document.getElementById('gForms').onclick = e=>{
+    const b = e.target.closest('.chip'); if(!b) return;
+    const f = b.dataset.f;
+    if(formsOn.has(f)) formsOn.delete(f); else formsOn.add(f);
+    b.classList.toggle('on', formsOn.has(f));
+  };
+  document.getElementById('gSave').onclick = async ()=>{
+    const display = document.getElementById('gName').value.trim();
+    if(!display){ toast('Give it a name'); return; }
+    let ov, ratio;
+    try{ ov = textToPairs(document.getElementById('gOv').value); ratio = textToPairs(document.getElementById('gRatio').value); }
+    catch(err){ toast(err.message); return; }
+    const related = [];
+    for(const nm of document.getElementById('gRelated').value.split(',').map(s => s.trim()).filter(Boolean)){
+      const rr = resolveName(DICT, nm);
+      const k = rr.key || (rr.candidates.length === 1 ? rr.candidates[0] : null);
+      if(!k){ toast(`Couldn't find "${nm}" in the dictionary${rr.candidates.length > 1 ? ' — it matches several; be more specific' : ''}`); return; }
+      if(k !== key) related.push(k);
+    }
+    const out = {...it,
+      display,
+      parent: document.getElementById('gParent').value || null,
+      aliases: document.getElementById('gAliases').value.split(',').map(s => s.trim()).filter(Boolean),
+      forms: FORMS.filter(f => formsOn.has(f)),
+      aisle: document.getElementById('gAisle').value,
+      default_scale: document.getElementById('gScale').value,
+      staple: document.getElementById('gStaple').checked,
+      whole_only: document.getElementById('gWhole').checked,
+      related: [...new Set(related)],
+      sibling_score: Math.min(1, Math.max(0, +document.getElementById('gSib').value || 0)),
+      form_overrides: ov, form_ratios: ratio,
+    };
+    if(isNew){
+      out.key = slugify(display);
+      if(!out.key){ toast('That name has no letters or numbers'); return; }
+      if(DICT.byKey[out.key]){ toast(`"${DICT.byKey[out.key].display}" already exists`); return; }
+    }
+    await putOne('ingredients', out);
+    toast(isNew ? 'Ingredient added' : 'Saved');
+    location.hash = '#/ingredients';
+  };
+  if(isNew) return;
+
+  document.getElementById('gMerge').onclick = async ()=>{
+    const to = document.getElementById('gMergeTo').value;
+    if(!to){ toast('Choose the ingredient to merge into'); return; }
+    const target = DICT.byKey[to];
+    if(!(await appConfirm(`Merge "${it.display}" into "${target.display}"? ${usedIn.length} recipe${usedIn.length === 1 ? '' : 's'} will be updated.`, 'Merge'))) return;
+    await mergeIngredient(key, to);
+    toast(`Merged into ${target.display}`);
+    location.hash = `#/i/${encodeURIComponent(to)}`;
+  };
+  document.getElementById('gDel').onclick = async ()=>{
+    if(usedIn.length){ toast(`Used in ${usedIn.length} recipe${usedIn.length > 1 ? 's' : ''} — merge it into another ingredient instead`); return; }
+    if(!(await appConfirm(`Delete "${it.display}"?${kids.length ? ' Its sub-types move up a level.' : ''}`, 'Delete'))) return;
+    const all = await getAll('ingredients');
+    for(const x of all){
+      let changed = false;
+      if(x.parent === key){ x.parent = it.parent || null; changed = true; }
+      if((x.related||[]).includes(key)){ x.related = x.related.filter(k => k !== key); changed = true; }
+      if(changed) await putOne('ingredients', x);
+    }
+    await deleteOne('ingredients', key);
+    const haves = await getSetting('search_haves', []);
+    await setSetting('search_haves', haves.filter(h => h.key !== key));
+    toast('Ingredient deleted');
+    location.hash = '#/ingredients';
+  };
+}
+async function mergeIngredient(from, to){
+  const all = await getAll('ingredients');
+  const src = all.find(x => x.key === from), dst = all.find(x => x.key === to);
+  // never create a loop: if the target sits under the source, lift it to the source's parent
+  if(ancestors(DICT, to).includes(from)) dst.parent = src.parent && src.parent !== to ? src.parent : null;
+  const seenAlias = new Set([normName(dst.display)]);
+  dst.aliases = [...dst.aliases, src.display, ...src.aliases].filter(a => { const n = normName(a); if(seenAlias.has(n)) return false; seenAlias.add(n); return true; });
+  dst.forms = [...new Set([...(dst.forms||[]), ...(src.forms||[])])];
+  dst.related = [...new Set([...(dst.related||[]), ...(src.related||[])])].filter(k => k !== to && k !== from);
+  for(const x of all){
+    if(x.key === from || x.key === to) continue;
+    let changed = false;
+    if(x.parent === from){ x.parent = to; changed = true; }
+    if((x.related||[]).includes(from)){ x.related = [...new Set(x.related.map(k => k === from ? to : k))].filter(k => k !== x.key); changed = true; }
+    if(changed) await putOne('ingredients', x);
+  }
+  await putOne('ingredients', dst);
+  await deleteOne('ingredients', from);
+  for(const r of await getAll('recipes')){
+    if(!r.ingredients.some(l => l.key === from)) continue;
+    for(const l of r.ingredients){
+      if(l.key !== from) continue;
+      l.key = to;
+      if(l.form !== 'any' && (dst.forms||[]).length && !dst.forms.includes(l.form)) l.form = 'any';
+    }
+    await putOne('recipes', r);
+  }
+  const haves = await getSetting('search_haves', []);
+  await setSetting('search_haves', haves.map(h => h.key === from ? {...h, key: to} : h));
+  await loadDict();
+}
+
+/* =========================================================
+   HISTORY
+   ========================================================= */
+async function renderHistory(app){
+  const [hist, recipes] = await Promise.all([getAll('history'), getAll('recipes')]);
+  const byId = Object.fromEntries(recipes.map(r => [r.id, r]));
+  hist.sort((a,b) => (b.date||'').localeCompare(a.date||'') || b.id - a.id);
+  const groups = [];
+  for(const h of hist){
+    const label = new Date((h.date||todayStr()) + 'T00:00:00').toLocaleDateString(undefined, {month:'long', year:'numeric'});
+    let g = groups[groups.length-1];
+    if(!g || g.label !== label){ g = {label, items:[]}; groups.push(g); }
+    g.items.push(h);
+  }
+  app.innerHTML = `<div class="page">
+    <h1>Cook history <span class="count">${hist.length}</span></h1>
+    ${hist.length ? groups.map(g => `<h2>${esc(g.label)}</h2><ul class="plain">${g.items.map(h => {
+      const r = byId[h.recipe_id];
+      return `<li class="card" style="padding:12px 14px;margin-bottom:8px;cursor:pointer" data-id="${h.id}">
+        <div style="display:flex;justify-content:space-between;gap:10px"><strong>${r ? esc(r.title) : '<span class="note">Deleted recipe</span>'}</strong><span style="color:var(--accent)">${'★'.repeat(h.rating||0)}</span></div>
+        <span class="meta">${fmtDate(h.date)}${h.scale && h.scale !== 1 ? ' · ' + factorLabel(h.scale) : ''}${h.notes ? ' · ' + esc(h.notes) : ''}</span></li>`;
+    }).join('')}</ul>`).join('')
+    : '<p class="empty">Nothing logged yet. Open a recipe and tap "I cooked this" after you make it.</p>'}
+    <hr class="rule"><a href="#/backup">⇩ Backup &amp; restore</a>
+  </div>`;
+  app.querySelectorAll('li[data-id]').forEach(li => li.onclick = async e=>{
+    const h = hist.find(x => x.id === +li.dataset.id);
+    if(e.target.closest('a')) return;
+    if(await openCookModal({recipe: byId[h.recipe_id], entry: h})) renderHistory(app);
+  });
+}
+
+/* =========================================================
+   BACKUP
+   ========================================================= */
+async function renderBackup(app){
+  const [recipes, ingredients, history] = await Promise.all([getAll('recipes'), getAll('ingredients'), getAll('history')]);
+  app.innerHTML = `<div class="page">
+    <h1>Backup &amp; restore</h1>
+    <p class="meta" style="line-height:1.5;margin-bottom:16px">Everything lives only on this device. Export a backup now and then so clearing your browser data or changing phones doesn't lose your recipes.</p>
+    <div class="card">
+      <div class="kv"><span>Recipes</span><span class="mono">${recipes.length}</span></div>
+      <div class="kv"><span>Ingredients</span><span class="mono">${ingredients.length}</span></div>
+      <div class="kv"><span>Cook log entries</span><span class="mono">${history.length}</span></div>
+    </div>
+    <button class="btn block" id="exportBtn">Export backup (.json)</button>
+    <hr class="rule">
+    <div class="field"><label>Restore from backup</label><input type="file" id="importFile" accept="application/json,.json">
+      <div class="hint">Replaces everything currently stored on this device.</div></div>
+    <hr class="rule">
+    <button class="btn ghost block" id="starterBtn">Add any missing starter ingredients</button>
+    <div class="hint" style="margin-bottom:14px">Adds the built-in ingredients you don't have. Never changes ones you've edited.</div>
+    <button class="btn danger block" id="wipeBtn">Erase all data</button>
+  </div>`;
+  document.getElementById('exportBtn').onclick = async ()=>{
+    const data = {app:'recipe-bank', version:1, exported_at: new Date().toISOString(),
+      recipes: await getAll('recipes'), ingredients: await getAll('ingredients'),
+      history: await getAll('history'), settings: await getAll('settings')};
+    const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], {type:'application/json'}));
+    const a = document.createElement('a');
+    a.href = url; a.download = `recipe-bank-backup-${todayStr()}.json`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 2000);
+    toast('Backup downloaded');
+  };
+  document.getElementById('importFile').onchange = async e=>{
+    const file = e.target.files[0]; if(!file) return;
+    try{
+      const data = JSON.parse(await file.text());
+      if(!Array.isArray(data.recipes) || !Array.isArray(data.ingredients)) throw new Error("this doesn't look like a Recipe Bank backup");
+      if(!(await appConfirm(`Replace everything with this backup (${data.recipes.length} recipes, ${data.ingredients.length} ingredients)?`, 'Restore'))){ e.target.value = ''; return; }
+      for(const s of ['recipes','ingredients','history','settings']) await clearStore(s);
+      await putMany('recipes', data.recipes);
+      await putMany('ingredients', data.ingredients);
+      await putMany('history', data.history || []);
+      await putMany('settings', (data.settings || []).concat([{key:'seeded_recipes', value:true}]));
+      toast('Backup restored');
+      renderBackup(app);
+    }catch(err){ toast('Could not read that file: ' + err.message); }
+  };
+  document.getElementById('starterBtn').onclick = async ()=>{
+    const have = new Set((await getAll('ingredients')).map(x => x.key));
+    const missing = parseSeedIngredients(SEED_INGREDIENTS).filter(x => !have.has(x.key))
+      .map(x => (x.parent && !have.has(x.parent) && !SEED_INGREDIENTS.includes(`\n${x.parent}|`)) ? {...x, parent:null} : x);
+    await putMany('ingredients', missing);
+    toast(missing.length ? `Added ${missing.length} ingredient${missing.length > 1 ? 's' : ''}` : 'You already have them all');
+    renderBackup(app);
+  };
+  document.getElementById('wipeBtn').onclick = async ()=>{
+    if(!(await appConfirm('Erase ALL recipes, ingredients and history on this device? This cannot be undone.', 'Erase everything'))) return;
+    for(const s of ['recipes','ingredients','history','settings']) await clearStore(s);
+    await setSetting('seeded_recipes', true);
+    await putMany('ingredients', parseSeedIngredients(SEED_INGREDIENTS));
+    toast('Erased — starter ingredient dictionary restored');
+    renderBackup(app);
+  };
+}
+</script>
+<script>
+if('serviceWorker' in navigator && location.protocol !== 'file:'){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('sw.js').catch(err => console.log('SW registration failed:', err));
+  });
+}
+</script>
+</body>
+</html>
